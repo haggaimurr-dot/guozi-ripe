@@ -1,0 +1,66 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+
+# Local DB / runtime
+*.db
+guozi.db
+log.txt
+serve.log
+*.log
+
+# Secrets / env
+.env
+.env.*
+.llm_key
+.secret
+*.pem
+*.key
+
+# Node (if added later)
+node_modules/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*~
+
+# Backups & scratch
+*.bak
+*.bak.*
+*.bak.html
+*.bak*
+*_bak*
+*.orig
+*.tmp
+*.temp
+
+# Review screenshots & large scratch (keep repo small)
+s15*.png
+s16*.png
+s17*.png
+s[0-9]*.png
+s[0-9]*-*.png
+_fe-*.png
+shot*.png
+anim-f*.png
+fork-anim*.gif
+claude-willow-ref.*
+docs/shots/
+
+# Agent / box temp
+agent-tools/
+agent-data/
+.cursor/
+
+# User uploads (runtime; do not commit)
+uploads/
+**/uploads/

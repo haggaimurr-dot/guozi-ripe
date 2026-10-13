@@ -1,0 +1,1732 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8"><title>让果子熟</title>
+<style>
+body{margin:0;font-family:"Noto Sans SC",sans-serif;background:#F4F1E8;color:#3a3a32}
+h1,h2{font-family:"Noto Serif SC",serif;color:#5E7D4F;margin:0 0 6px}
+.wrap{display:flex;gap:20px;padding:20px;height:100vh;box-sizing:border-box}
+.card{background:rgba(250,248,240,.85);border-radius:14px;padding:18px;box-shadow:0 2px 12px rgba(107,79,58,.12)}
+.left{width:280px;display:flex;flex-direction:column;gap:16px}
+input,textarea{width:100%;box-sizing:border-box;padding:14px;border:1px solid #A8C686;border-radius:12px;background:#F4F1E8;font-size:14px;margin:8px 0;font:inherit;color:#3a3a32}
+.btn{background:#5E7D4F;color:#F4F1E8;border:1.5px solid #5E7D4F;border-radius:12px;padding:9px 14px;cursor:pointer;font-size:13px}
+.btn:hover{background:#6f9160}.ghost{background:transparent;color:#5E7D4F}.ghost:hover{background:#A8C68633}
+.btn.fruit{background:#E08A4B;border-color:#E08A4B}.btn.fruit:hover{background:#e89a60}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#E08A4B;box-shadow:0 0 6px #E08A4B;margin-right:6px}
+.sub{color:#8A8F86;font-size:13px}.tree{flex:1;padding:0;position:relative;overflow:hidden}
+.tree h2{position:absolute;z-index:2;left:18px;top:14px}.detail{width:300px;overflow:auto}
+.tag{display:inline-block;padding:2px 8px;border-radius:8px;font-size:12px;color:#F4F1E8}
+.att{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:14px;padding:6px 8px;border-radius:8px;background:#F4F1E8}
+.att .nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.att .del{border:none;background:transparent;color:#8A8F86;cursor:pointer;font-size:14px;padding:0 4px}
+.att .del:hover{color:#b5653a}.err{color:#b5653a;font-size:12px}
+.tl{cursor:pointer;margin:8px 0}
+@keyframes br{0%,100%{opacity:.3}50%{opacity:.9}}.breath{animation:br 1.4s infinite}
+@keyframes stageBreath{0%,100%{opacity:.55}50%{opacity:1}}.stage-breath{animation:stageBreath 1.6s ease-in-out infinite}
+.seg{display:flex;gap:4px;margin-top:14px}.seg button{flex:1;border:1px solid #d9d4c4;background:#F4F1E8;border-radius:10px;padding:6px 2px;font-size:12px;cursor:pointer;color:#6B4F3A}
+.seg button.on{border-color:var(--c);background:color-mix(in srgb,var(--c) 18%,#F4F1E8);font-weight:600}
+.seg i{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--c);margin-right:4px}
+.pop{position:absolute;z-index:5;width:200px;padding:12px;border-radius:12px;background:#F4F1E8;font-size:13px;box-shadow:0 4px 14px #6B4F3A22}
+.pop textarea,.pop input{width:100%;box-sizing:border-box;border:1px solid #d9d4c4;border-radius:8px;background:#fffdf6;margin:6px 0;padding:6px;font:inherit}
+.pop.fruit{border:1.5px solid #E08A4B}.pop.dead{background:#e6e5df;border:1px solid #8A8F86;transform:rotate(-1deg)}
+@keyframes bounce{0%{transform:scale(.85)}50%{transform:scale(1.12)}100%{transform:scale(1)}}.bounce{animation:bounce .2s ease-out;transform-box:fill-box;transform-origin:center}
+.fade path{transition:all 1.2s}.badge{display:inline-block;font-size:10px;padding:1px 6px;border-radius:6px;line-height:1.4;vertical-align:2px}
+.badge.mock{background:#8A8F8628;color:#6e736c;border:1px solid #8A8F86;font-weight:500}
+.badge.ai{background:#5E7D4F22;color:#5E7D4F;border:1px solid #5E7D4F66}
+.ghostcard .badge{position:absolute;right:6px;top:6px}
+.sug-hint{font-size:12px;color:#6e736c;margin:6px 0 0;padding:6px 8px;background:#8A8F8614;border-radius:8px;border:1.5px dashed #8A8F86}
+.sug-err{font-size:12px;color:#C8574A;margin:8px 0 0;padding:8px 10px;background:#C8574A12;border:1px solid #C8574A55;border-radius:10px}
+.node-src{margin-left:6px}
+.ghostcard{transition:opacity .2s;opacity:.55;cursor:pointer}.ghostcard:hover{opacity:1}
+.nav{display:flex;gap:6px;margin-bottom:4px}
+.nav button{flex:1;border:1px solid #A8C686;background:#F4F1E8;border-radius:10px;padding:8px;font-size:13px;cursor:pointer;color:#5E7D4F}
+.nav button.on{background:#5E7D4F;color:#F4F1E8;border-color:#5E7D4F}
+.drop{border:1.5px dashed #A8C686;border-radius:12px;padding:16px 10px;text-align:center;color:#8A8F86;font-size:12px;margin:8px 0;transition:border-color .15s,background .15s}
+.lk{color:#5E7D4F;text-decoration:underline;cursor:pointer}.drop:hover,.drop.over{border-color:#5E7D4F;background:#A8C68622;color:#5E7D4F}
+.prog{height:3px;background:#d9d4c4;border-radius:2px;overflow:hidden;margin:4px 0 8px;display:none}
+.prog.on{display:block}.prog i{display:block;height:100%;width:0;background:#5E7D4F;transition:width .2s}
+.att-actions{display:flex;gap:6px;margin:4px 0 8px}
+.att-actions button{flex:1;font-size:11px;padding:6px 4px}
+.market-wrap{flex:1;overflow:auto;padding:8px}
+.mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px;padding:8px}
+.plaque{position:relative;background-color:#9A7A5A;background-image:repeating-linear-gradient(92deg,rgba(122,92,66,.0) 0 7px,rgba(122,92,66,.22) 7px 8px,rgba(122,92,66,0) 8px 15px,rgba(244,241,232,.06) 15px 17px),linear-gradient(170deg,rgba(244,241,232,.08),rgba(107,79,58,.25));border-radius:10px;padding:14px 12px 16px;box-shadow:inset 0 1px 0 #A89070,0 4px 14px rgba(107,79,58,.28);cursor:pointer;min-height:200px;display:flex;flex-direction:column}
+.plaque::before{content:"";position:absolute;inset:6px;border:1px solid #A8907066;border-radius:6px;pointer-events:none}
+.plaque .free{position:absolute;top:10px;right:10px;background:#A8C686;color:#3a3a32;font-size:11px;padding:2px 8px;border-radius:999px;display:flex;align-items:center;gap:3px;z-index:1;box-shadow:0 1px 3px #5E7D4F44}
+.plaque .free::before{content:"🍃";font-size:10px}
+.plaque .mini{flex:1;display:flex;align-items:center;justify-content:center;margin:8px 0}
+.plaque h3{margin:0;font-family:"Noto Serif SC",serif;color:#F4F1E8;text-shadow:0 1px 2px rgba(74,52,36,.6);font-size:15px;text-align:center;position:relative;z-index:1}
+.plaque .meta{color:#F4F1E8;opacity:.85;font-size:12px;text-align:center;margin-top:6px;position:relative;z-index:1}
+.plaque .harv{color:#F4F1E8;text-shadow:0 1px 2px rgba(74,52,36,.6);font-size:12px;text-align:center;margin-top:4px;position:relative;z-index:1;opacity:.95}
+#forest-view,#market-view{display:contents}
+#market-view{display:none}
+body.market #forest-view{display:none}
+body.market #market-view{display:flex;flex:1;flex-direction:column}
+body.market .wrap{display:flex}
+body.market .left{display:flex}
+.pub-row{margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.plaque.ph{background:#ebe6d6;border:1.5px dashed #c9bfa6;box-shadow:none;cursor:default;align-items:center;justify-content:center;color:#8A8F86;font-size:13px}.plaque.ph::before{display:none}
+.robar-wrap{position:absolute;z-index:3;left:0;right:0;top:12px;display:flex;justify-content:center;pointer-events:none}
+.robar-wrap .back{position:absolute;left:16px;top:4px;pointer-events:auto}
+.roplaque{pointer-events:auto;background-color:#9A7A5A;background-image:repeating-linear-gradient(92deg,rgba(122,92,66,0) 0 7px,rgba(122,92,66,.22) 7px 8px,rgba(122,92,66,0) 8px 15px);color:#F4F1E8;border-radius:8px;padding:8px 18px;text-align:center;box-shadow:0 3px 10px rgba(107,79,58,.3);display:flex;flex-direction:column;gap:2px;text-shadow:0 1px 2px rgba(74,52,36,.5)}
+.roplaque b{font-family:"Noto Serif SC",serif;font-size:15px}.roplaque span{font-size:12px;opacity:.9}
+.detail:has(.forkbar){display:flex;flex-direction:column}.rocontent{flex:1;overflow:auto}
+.forkbar{padding-top:10px}
+.forkbar .btn{width:100%;padding:12px;font-size:14px}
+.flyseed{position:fixed;z-index:50;width:18px;height:24px;border-radius:50%/60% 60% 40% 40%;background:#7A5C42;box-shadow:inset -3px -3px 0 #6B4F3A;transition:transform .45s cubic-bezier(.5,0,.8,.4),opacity .45s}
+.caibadge{display:inline-block;margin-left:6px;font-size:10px;padding:1px 6px;border-radius:8px;background:#A8C68655;color:#5E7D4F;vertical-align:2px}
+body.ro .left{display:none}
+.ownhint{background:#F4F1E8;border:1.5px solid #A8C686;color:#5E7D4F;border-radius:12px;padding:10px 12px;font-size:14px;display:flex;flex-direction:column;align-items:center;gap:2px}.ownhint span{font-size:11px;color:#8A8F86}
+.tl{border-radius:8px;padding:2px 6px;margin-left:-6px}@keyframes flash{0%{background:transparent}30%{background:#A8C686}100%{background:transparent}}.tl.flash{animation:flash .7s ease-in-out}
+.moreWrap{position:relative;display:inline-block;margin-left:8px;vertical-align:middle}
+.more{border:none;background:transparent;color:#8A8F86;font-size:18px;cursor:pointer;border-radius:8px;padding:0 6px;line-height:1.4}.more:hover{background:#A8C68633;color:#5E7D4F}
+.menu{display:none;position:absolute;left:0;top:28px;background:#F4F1E8;border:1px solid #d9d4c4;border-radius:10px;box-shadow:0 4px 14px #6B4F3A22;padding:4px;min-width:120px;font-family:"Noto Sans SC",sans-serif}
+.menu.on{display:block}.menu button{display:block;width:100%;text-align:left;border:none;background:transparent;padding:7px 10px;border-radius:7px;font-size:13px;color:#C8574A;cursor:pointer}.menu button:hover{background:#C8574A14}
+.modal-bg{position:fixed;inset:0;z-index:60;background:rgba(74,60,44,.28);display:flex;align-items:center;justify-content:center}
+.modal{width:340px;background:#F4F1E8;border-radius:16px;padding:22px 22px 18px;box-shadow:0 12px 36px rgba(74,52,36,.3);text-align:center}
+.dhint{margin:12px 0 0;background:#E08A4B1F;border:1px solid #E08A4B66;color:#9a5a2c;border-radius:10px;padding:8px 10px;font-size:12px;text-align:left;line-height:1.5}
+.mbtns{display:flex;gap:10px;justify-content:center;margin-top:16px}.mbtns .btn{flex:1}
+.btn.danger{background:#C8574A;border-color:#C8574A;color:#F4F1E8}.btn.danger:hover{background:#b44c40}
+.forkline{font-size:13px;color:#6B4F3A;background:#A8C68622;border-radius:8px;padding:6px 8px}
+
+.pubpop{position:absolute;z-index:9;width:230px;padding:14px;border-radius:12px;background:#F4F1E8;border:1.5px solid #E08A4B;box-shadow:0 6px 18px #6B4F3A33;font-size:13px}
+.tg{display:flex;align-items:center;justify-content:space-between;margin:10px 0;color:#6B4F3A}
+.sw{position:relative;width:34px;height:19px;border-radius:10px;background:#d9d4c4;cursor:pointer;transition:.2s;flex:none}
+.sw::after{content:"";position:absolute;left:2px;top:2px;width:15px;height:15px;border-radius:50%;background:#F4F1E8;transition:.2s}
+.sw.on{background:#5E7D4F}.sw.on::after{left:17px}
+.detail{position:relative}
+.topbar{height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;box-sizing:border-box}
+.topbar .brand{font-family:"Noto Serif SC",serif;color:#5E7D4F;font-size:18px;font-weight:600;letter-spacing:2px;display:flex;align-items:center;gap:6px}
+.wrap{height:calc(100vh - 48px)!important;padding-top:0!important}
+.uchip{display:flex;align-items:center;gap:8px;background:rgba(250,248,240,.9);border:1px solid #A8C68688;border-radius:999px;padding:3px 4px 3px 4px;font-size:13px;color:#6B4F3A;box-shadow:0 1px 6px rgba(107,79,58,.08)}
+.uchip .nm{max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.uchip button{border:none;background:transparent;color:#8A8F86;font-size:12px;cursor:pointer;padding:3px 10px;border-left:1px solid #d9d4c4}.uchip button:hover{color:#C8574A}
+.av{display:inline-flex;align-items:center;justify-content:center;border-radius:50%;background:#ebe6d6;flex:none;vertical-align:middle}
+.au{display:inline-flex;align-items:center;gap:4px;vertical-align:middle}
+#auth{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;overflow:hidden;
+ background:radial-gradient(ellipse at 30% 20%,#FBFAF4 0%,#F4F1E8 45%,#E6E8DA 100%)}
+body.authed #auth{display:none!important}body:not(.authed) #auth{display:flex}
+body:not(.authed) .topbar,body:not(.authed) .wrap{visibility:hidden}
+.mist{position:absolute;left:-20%;width:140%;height:180px;border-radius:50%;background:radial-gradient(ellipse at center,rgba(250,248,240,.9),rgba(250,248,240,0) 70%);filter:blur(8px);animation:drift 18s ease-in-out infinite alternate}
+@keyframes drift{from{transform:translateX(-4%)}to{transform:translateX(4%)}}
+.authcard{position:relative;z-index:2;width:360px;background:rgba(250,248,240,.88);backdrop-filter:blur(6px);border-radius:20px;padding:26px 28px 24px;box-shadow:0 12px 40px rgba(94,125,79,.15);text-align:center}
+.authcard h1{font-family:"Noto Serif SC",serif;color:#5E7D4F;font-size:26px;margin:6px 0 2px;letter-spacing:3px}
+.authtabs{display:flex;margin:16px 0 10px;border-bottom:1px solid #d9d4c4}
+.authtabs button{flex:1;border:none;background:transparent;padding:8px;font-size:14px;color:#8A8F86;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+.authtabs button.on{color:#5E7D4F;border-bottom-color:#5E7D4F;font-weight:600}
+.authcard input{margin:6px 0;padding:11px 14px;text-align:left}
+.authcard .btn{width:100%;padding:11px;font-size:14px;margin-top:8px}
+.aerr{min-height:18px;color:#b5653a;font-size:12px;text-align:left;margin-top:4px}
+.avgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
+.avopt{border:1.5px solid #d9d4c4;background:#F4F1E8;border-radius:14px;padding:10px 4px 6px;cursor:pointer;font-size:12px;color:#6B4F3A;display:flex;flex-direction:column;align-items:center;gap:4px}
+.avopt.on{border-color:#5E7D4F;background:#A8C68633}
+.authhills{position:absolute;left:0;right:0;bottom:0;width:100%;height:220px;z-index:1;pointer-events:none}
+.fld{position:relative;margin:8px 0}.fld input{margin:0;padding:18px 14px 6px}
+.fld label{position:absolute;left:15px;top:13px;font-size:14px;color:#8A8F86;pointer-events:none;transition:all .15s;text-align:left}
+.fld label i{font-style:normal;font-size:12px;color:#b5b8ae}
+.fld input:focus+label,.fld input:not(:placeholder-shown)+label{top:4px;font-size:11px;color:#5E7D4F}
+.fld input:focus+label i,.fld input:not(:placeholder-shown)+label i{display:none}
+.fld input:focus{outline:none;border-color:#5E7D4F}
+.fld input.bad{border-color:#C8574A;border-width:1.5px;background:#C8574A0d}.fld input.bad+label{color:#C8574A}
+.eye{position:absolute;right:8px;top:50%;transform:translateY(-50%);border:none;background:transparent;cursor:pointer;padding:4px;border-radius:6px}.eye:hover{background:#A8C68633}
+.eye .slash{display:none}.eye.on .slash{display:inline}.fld:has(.eye) input{padding-right:40px}
+.agree{display:flex;align-items:center;gap:6px;font-size:12px;color:#6B4F3A;text-align:left;margin:8px 0 0 2px;flex-wrap:wrap}
+.agree input{appearance:none;-webkit-appearance:none;width:16px;height:16px;margin:0;padding:0;border:1.5px solid #5E7D4F;border-radius:4px;background:#F4F1E8;cursor:pointer;flex:none;display:inline-grid;place-content:center}
+.agree input:checked{background:#5E7D4F}.agree input:checked::after{content:"";width:8px;height:4px;border-left:2px solid #F4F1E8;border-bottom:2px solid #F4F1E8;transform:rotate(-45deg) translate(1px,-1px)}
+.agree .lk{text-decoration:underline}.agree.bad input{border-color:#C8574A}.agree.bad{color:#C8574A}
+.modal.doc{width:420px;text-align:left}.docbody{font-size:13px;line-height:1.7;color:#3a3a32;max-height:50vh;overflow:auto}
+.ferr{min-height:0;color:#C8574A;font-size:12px;text-align:left;margin:-4px 0 4px 4px}.ferr:empty{display:none}
+.chipme{display:flex;align-items:center;gap:8px;cursor:pointer;padding-right:4px;border-radius:999px}.chipme:hover .nm{color:#5E7D4F}
+.profpop{position:fixed;z-index:80;top:52px;right:24px;width:300px;max-height:calc(100vh - 70px);overflow:auto;background:#F4F1E8;border:1px solid #A8C68688;border-radius:16px;padding:16px;box-shadow:0 10px 30px rgba(74,52,36,.2)}
+.phsec{margin-top:14px;padding-top:12px;border-top:1px dashed #d9d4c4;text-align:left}
+.phsec .ttl{font-size:12px;color:#5E7D4F;margin-bottom:6px;font-weight:600}
+.phrow{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px;color:#6B4F3A}
+.phrow .msk{letter-spacing:.5px}
+.phrow .act{border:none;background:transparent;color:#5E7D4F;cursor:pointer;font-size:12px;text-decoration:underline;padding:0}
+.phrow .ph-unb{padding:4px 12px;font-size:12px;border-radius:10px}.ph-dev{font-size:11px;color:#8A8F86;margin:4px 0 2px;cursor:pointer;user-select:all}.ph-dev:hover{color:#5E7D4F;text-decoration:underline}.ph-rate{font-size:12px;color:#C8574A;margin:4px 0 0}.ferr.ph{margin:2px 0 4px 2px;min-height:14px}
+.phform{margin-top:8px}
+.phform .fld{margin:6px 0}
+.phform input{width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid #A8C686;border-radius:10px;background:#F4F1E8;font:inherit;color:#3a3a32}
+.phform input.bad{border-color:#C8574A;background:#C8574A0d}
+.phsend{display:flex;gap:6px;align-items:stretch}
+.phsend input{flex:1}
+.phsend .btn{flex:none;padding:8px 10px;font-size:12px;white-space:nowrap;min-width:96px}
+.phsend .btn:disabled{opacity:.55;cursor:default;background:#8A8F86;border-color:#8A8F86}
+.phpriv{font-size:11px;color:#8A8F86;margin:4px 0 8px;line-height:1.45}
+.phbtns{display:flex;gap:8px;margin-top:8px}.phbtns .btn{flex:1;padding:8px;font-size:13px}
+.avgrid.sm{gap:8px;margin:12px 0}.avgrid.sm .avopt{padding:6px 2px 4px;border-radius:12px;font-size:11px}
+.profpop input{margin:6px 0 2px;padding:10px 12px}
+.pfbtns{display:flex;gap:8px;margin-top:10px}.pfbtns .btn{flex:1}.pfbtns .out{color:#8A8F86;border-color:#d9d4c4}.pfbtns .out:hover{color:#C8574A;background:#C8574A0d}
+input.nick.bad{border-color:#C8574A;border-width:1.5px;background:#C8574A0d}.nickerr{margin:4px 0 0 4px}
+.nlab{display:block;text-align:left;font-size:12px;color:#5E7D4F;margin:2px 0 -2px 4px}
+.authorline{font-size:12px;color:#6B4F3A;margin:4px 0 8px}
+
+.fogcap{display:inline-block;background:#8A8F8622;color:#8A8F86;border:1px dashed #8A8F86;border-radius:999px;padding:3px 10px;font-size:11px;pointer-events:none}
+.foldtri{cursor:pointer}
+.attbar{display:flex;gap:6px;margin:8px 0 6px;align-items:center}
+.attbar input{margin:0;padding:8px 10px;font-size:12px;flex:1;color:#8A8F86}
+.attbar select{padding:7px 8px;border:1px solid #A8C686;border-radius:10px;background:#F4F1E8;color:#6B4F3A;font:inherit;font-size:12px}
+.att-empty{color:#8A8F86;font-size:13px;margin:8px 0;padding:10px;text-align:center}
+.att-text{background:#FBFAF4;border-radius:10px;padding:10px 12px;margin:6px 0;font-size:14px;line-height:1.55;color:#3a3a32;white-space:pre-wrap;word-break:break-word}
+.att-text .ttl{font-size:12px;color:#6B4F3A;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center}
+.att-card{display:flex;align-items:center;gap:10px;margin:6px 0;padding:10px;border-radius:10px;background:#9A7A5A22;border:1px solid #7A5C4244;box-shadow:inset 0 1px 0 #A8907044}
+.att-card .meta{flex:1;min-width:0}.att-card .nm{font-size:13px;color:#6B4F3A;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.att-card .fog{font-size:11px;color:#8A8F86;margin-top:2px}
+.att-card .acts{display:flex;gap:4px;flex:none}.att-card .acts .btn{padding:5px 8px;font-size:11px}
+.btn.outline{background:transparent;color:#5E7D4F;border:1.5px solid #5E7D4F}.btn.outline:hover{background:#A8C68633}
+.lightbox{position:fixed;inset:0;z-index:90;background:rgba(74,60,44,.4);display:flex;align-items:center;justify-content:center;padding:24px}
+.lightbox .box{background:#FBFAF4;border-radius:16px;max-width:min(860px,94vw);max-height:86vh;overflow:auto;padding:18px;box-shadow:0 12px 40px rgba(74,52,36,.35);position:relative}
+.lightbox .box img{display:block;max-width:100%;max-height:70vh;margin:0 auto}
+.lightbox .box pre{background:#2b2b28;color:#EDE3CF;padding:14px;border-radius:10px;overflow:auto;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;line-height:1.5;white-space:pre-wrap}
+.lightbox .close{position:sticky;top:0;float:right;margin:-4px 0 8px 8px;background:#5E7D4F;border-color:#5E7D4F}
+.ndel{margin-top:12px}
+.seg .btn.fruit{flex:1.2}
+.ripe-ro{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;opacity:.55;cursor:not-allowed;pointer-events:none;user-select:none;border:1px dashed #c5c1b4;background:#e9e7df;color:#9a968a;border-radius:10px;padding:7px 2px;font-size:11px;text-align:center;line-height:1.2}.ripe-ro::before{content:"";display:block;width:10px;height:10px;border-radius:50%;background:#c5c1b4;box-shadow:inset -1px -1px 0 rgba(0,0,0,.08)}.ripe-ro.on{opacity:.7;border-style:dashed;border-color:#d4a07a;color:#b88968;background:#E08A4B14}.ripe-ro.on::before{background:#E08A4B88}.ripe-row{margin-top:10px}.ripe-row .lab{font-size:12px;color:#8A8F86;margin-bottom:4px}
+.ripe-seg{display:flex;gap:4px}.ripe-seg button{flex:1;border:1px solid #d9d4c4;background:#F4F1E8;border-radius:10px;padding:7px 2px;font-size:11px;cursor:pointer;color:#6B4F3A;display:flex;flex-direction:column;align-items:center;gap:3px}
+.ripe-seg button.on{border-color:var(--c);background:color-mix(in srgb,var(--c) 18%,#F4F1E8);font-weight:600}
+.ripe-seg button:disabled{opacity:.45;cursor:default}
+.ripe-seg i{display:block;width:10px;height:10px;border-radius:50%;background:var(--c);box-shadow:inset -1px -1px 0 rgba(0,0,0,.12)}
+.ripe-seg i.swell{width:12px;height:9px;border-radius:50%;background:#B8C45A!important;box-shadow:none}
+.ripe-seg .half{background:linear-gradient(90deg,#B8C45A 50%,#E08A4B 50%)!important}
+.deco-box{margin-top:10px;padding:8px 10px;background:#9A7A5A14;border:1px solid #9A7A5A44;border-radius:10px}
+.deco-box .lab{font-size:12px;color:#6B4F3A;margin-bottom:6px;font-weight:600}
+.deco-box .tg{margin:6px 0;font-size:12px}
+
+/* ===== s17 willow forest stage ===== */
+:root{
+  --paper:#FBFCF8; --ink:#1E2922; --ink-2:#4D5A51; --muted:#76827A; --line:#D4DCD2; --line-2:#BFCABD;
+  --sky-top:#DFE8DF; --sky-bot:#F0F3EB; --hill-far:#D6E0D2; --hill-near:#C8D5C2;
+  --ground:#C0CCAC; --ground-2:#A9B994; --grass:#8FA476;
+  --bark:#5A493C; --bark-hi:#806A57; --bark-lo:#3B3028;
+  --stem:#71865A; --stem-back:#A8B9A1; --stem-strong:#46602F;
+  --leaf-1:#7AA14C; --leaf-2:#97BB59; --leaf-3:#5B8542; --leaf-4:#B7D17A;
+  --leaf-back-1:#B9CBB0; --leaf-back-2:#C8D7BE;
+  --dry:#A09380; --dry-leaf:#C3B595;
+  --done:#3A7647; --on-node:#FFFFFF; --grow:#D9841C; --todo:#86938A; --stuck:#B2452C;
+  --fruit-0:#98B752; --fruit-1:#E0AE36; --fruit-2:#E0703A; --seed:#87634A;
+  --label-bg:rgba(251,252,248,.93); --label-line:rgba(52,78,58,.18); --accent-soft:rgba(217,132,28,.14);
+}
+#forest-main.card.tree{padding:0;background:linear-gradient(var(--sky-top),var(--sky-bot) 70%);overflow:hidden}
+#forest-main .stage{position:absolute;inset:0;overflow:hidden;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+#forest-main .stage svg.hills,#forest-main .stage canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+#forest-main .overlay{position:absolute;inset:0;pointer-events:none;z-index:2}
+#forest-main .overlay>*{position:absolute;left:0;top:0;pointer-events:auto;will-change:transform}
+#forest-main h2#tt{z-index:6;pointer-events:none}
+#forest-main h2#tt .moreWrap{pointer-events:auto}
+.stage-tools{position:absolute;top:10px;right:10px;display:flex;gap:6px;z-index:5}
+.stage-tools .tool{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 10px;border-radius:999px;border:1px solid var(--line-2);background:var(--label-bg);color:var(--ink-2);font-size:12px;cursor:pointer}
+.stage-tools .tool[aria-pressed="false"]{color:var(--muted)}
+.w-legend{position:absolute;bottom:10px;left:12px;z-index:5;display:flex;flex-wrap:wrap;gap:6px 12px;font-size:11px;color:var(--ink-2);background:var(--label-bg);border-radius:999px;padding:5px 10px;pointer-events:none}
+.w-legend i{display:inline-block;width:10px;height:10px;border-radius:50%;vertical-align:-1px;margin-right:4px}
+.w-legend i.done{background:var(--done)}.w-legend i.doing{background:var(--grow);box-shadow:0 0 0 2px var(--accent-soft)}
+.w-legend i.todo{box-shadow:inset 0 0 0 1.5px var(--todo)}.w-legend i.blocked{box-shadow:inset 0 0 0 1.5px var(--stuck);position:relative}
+.w-legend i.blocked::after{content:"";position:absolute;left:2px;right:2px;top:4px;height:1.5px;background:var(--stuck)}
+.node{width:32px;height:32px;margin:-16px 0 0 -16px;padding:0;border:0;background:none;border-radius:50%;cursor:pointer;display:grid;place-items:center;transition:opacity .25s}
+.node .dot{position:relative;width:15px;height:15px;border-radius:50%;display:grid;place-items:center;box-shadow:0 0 0 2.5px var(--paper);transition:transform .2s}
+.node .dot svg{width:15px;height:15px;display:block;position:relative;z-index:1}
+.node[data-s="done"] .dot{background:var(--done)}
+.node[data-s="doing"] .dot{background:var(--grow)}
+.node[data-s="doing"] .dot::after{content:"";position:absolute;inset:-5px;border-radius:50%;border:2px solid var(--grow);opacity:.55;animation:wpulse 2.4s ease-out infinite;z-index:0}
+.node[data-s="todo"] .dot{background:var(--paper);box-shadow:0 0 0 2.5px var(--paper),inset 0 0 0 2px var(--todo)}
+.node[data-s="blocked"] .dot{background:var(--paper);box-shadow:0 0 0 2.5px var(--paper),inset 0 0 0 2px var(--stuck)}
+.node.dry .dot{width:11px;height:11px;background:var(--dry);box-shadow:0 0 0 2px var(--paper)}
+.node.dry .dot svg{display:none}
+.node:hover .dot,.node.sel .dot{transform:scale(1.18)}
+.node.sel .dot{box-shadow:0 0 0 2.5px var(--paper),0 0 0 4.5px color-mix(in srgb,var(--ink) 45%,transparent)}
+.node[data-s="done"].sel .dot{box-shadow:0 0 0 2.5px var(--paper),0 0 0 4px var(--done)}
+.node[data-s="doing"].sel .dot{box-shadow:0 0 0 2.5px var(--paper),0 0 0 4px var(--grow)}
+.node[data-s="todo"].sel .dot{box-shadow:0 0 0 2.5px var(--paper),inset 0 0 0 2px var(--todo),0 0 0 4px color-mix(in srgb,var(--ink) 40%,transparent)}
+.node[data-s="blocked"].sel .dot{box-shadow:0 0 0 2.5px var(--paper),inset 0 0 0 2px var(--stuck),0 0 0 4px color-mix(in srgb,var(--stuck) 55%,var(--ink))}
+.dim{opacity:.32}
+@keyframes wpulse{0%{transform:scale(.8);opacity:.6}80%,100%{transform:scale(1.9);opacity:0}}
+.fruit{width:36px;height:40px;margin:-4px 0 0 -18px;padding:0;border:0;background:none;cursor:pointer;display:block;transition:opacity .25s}
+.fruit svg{width:36px;height:40px;display:block;overflow:visible}
+.fruit .body{fill:var(--fc)}
+.fruit.ripe2 svg{filter:drop-shadow(0 0 5px color-mix(in srgb,var(--fruit-2) 55%,transparent))}
+.fruit.sel svg .ring{stroke:var(--ink)}
+.fruit.ground{margin:-30px 0 0 -18px}
+.seed{width:40px;height:34px;margin:-17px 0 0 -20px;padding:0;border:0;background:none;cursor:pointer}
+.seed svg{width:40px;height:34px;display:block;overflow:visible}
+.lbl{font-size:12.5px;line-height:1;padding:5px 8px;border-radius:7px;background:var(--label-bg);color:var(--ink);white-space:nowrap;pointer-events:none;box-shadow:0 0 0 1px var(--label-line);transition:opacity .2s}
+.lbl.hide{opacity:0}.lbl.doing{box-shadow:0 0 0 1.5px var(--grow);font-weight:600}
+.lbl.blocked{box-shadow:0 0 0 1.5px var(--stuck)}.lbl.todo{color:var(--ink-2)}
+.lbl.fruit-l{font-weight:600}.lbl.peek{opacity:1;z-index:4}
+.lbl.seed-l{font-family:"Noto Serif SC",serif;font-size:13px;font-weight:700;padding:7px 11px;color:#294632}
+.blabel{font-size:13px;font-weight:700;line-height:1;padding:6px 10px;border-radius:999px;border:0;background:var(--label-bg);color:var(--ink);white-space:nowrap;cursor:pointer;box-shadow:0 0 0 1px var(--label-line),0 1px 2px rgba(0,0,0,.06);transition:opacity .2s}
+.blabel.sel{box-shadow:0 0 0 2px var(--ink)}.blabel.dryb{font-weight:500;color:var(--muted)}.blabel.hide{opacity:0;pointer-events:none}
+@media (max-width:720px){
+  .wrap{flex-direction:column;height:auto!important;min-height:calc(100vh - 48px)}
+  .left{width:100%;flex-direction:row;flex-wrap:wrap}
+  .left .card{flex:1;min-width:140px}
+  #forest-main{min-height:520px;height:62vh;width:100%}
+  #forest-detail{width:100%;max-height:40vh}
+  #forest-detail.sheetish{position:fixed;left:0;right:0;bottom:0;z-index:30;max-height:55vh;overflow:auto;border-radius:18px 18px 0 0;width:auto;box-shadow:0 -10px 30px rgba(0,0,0,.14)}
+}
+@media (prefers-reduced-motion:reduce){.node[data-s="doing"] .dot::after{animation:none;opacity:.35;transform:scale(1.5)}}
+
+</style></head><body>
+<div id="auth"><div class="mist" style="top:8%"></div><div class="mist" style="top:55%;animation-delay:-6s;opacity:.8"></div><div class="mist" style="top:78%;animation-delay:-11s"></div><svg class="authhills" viewBox="0 0 1000 220" preserveAspectRatio="none"><path d="M0,120 Q200,40 380,110 T750,90 T1000,110 V220 H0Z" fill="#A8C686" opacity=".14"/><path d="M0,160 Q300,90 550,160 T1000,140 V220 H0Z" fill="#8A8F86" opacity=".12"/><path d="M0,205 Q500,195 1000,207 V220 H0Z" fill="#8B6B4A" opacity=".18"/></svg><div class="authcard" id="authcard"></div></div>
+<header class="topbar"><span class="brand"><svg width="20" height="24" viewBox="20 8 56 66"><ellipse cx="48" cy="70" rx="24" ry="4" fill="#7A5C42" opacity=".22"/><path d="M48 60c-9 0-14-6-14-13 0-9 7-15 14-21 7 6 14 12 14 21 0 7-5 13-14 13z" fill="#7A5C42"/><path d="M48 30v26" stroke="#C9A97A" stroke-width="1.3" opacity=".6"/><path d="M48 27c0-8 4-13 11-15-1 7-5 12-11 15z" fill="#A8C686"/><path d="M48 27c0-6-3-10-8-11 1 5 4 9 8 11z" fill="#5E7D4F"/></svg>让果子熟</span><div class="uchip" id="uchip"></div></header>
+<div class="wrap">
+ <div class="left">
+  <div class="card">
+   <div class="nav"><button class="on" id="tab-forest" onclick="goto('forest')">我的树</button><button id="tab-market" onclick="goto('market')">果子市集</button></div>
+  </div>
+  <div id="forest-view">
+   <div class="card"><h2>种下一颗种子</h2><div class="sub">贴一条推文链接，种下一颗种子</div>
+    <input id="url" placeholder="https://x.com/…/status/…"><div id="fb"></div><button class="btn" onclick="plant()">种下</button></div>
+   <div class="card"><h2>我的树</h2><div id="list"></div></div>
+  </div>
+  <div id="market-side" class="card" style="display:none"><h2>果子市集</h2><div class="sub">别人结出的果实，免费采摘灵感</div></div>
+ </div>
+ <div id="forest-main" class="card tree"><h2 id="tt"></h2>
+ <div class="stage" id="wstage">
+  <svg class="hills" id="whills" aria-hidden="true"></svg>
+  <canvas id="wcanvas" aria-hidden="true"></canvas>
+  <div class="overlay" id="woverlay"></div>
+  <div class="stage-tools"><button type="button" class="tool" id="demoBtn" aria-pressed="false" title="显示示例数据">示例数据</button><button type="button" class="tool" id="windBtn" aria-pressed="true" title="枝条随风摆动"><span id="windTxt">风</span></button></div>
+  <div class="w-legend" aria-hidden="true"><span><i class="done"></i>完成</span><span><i class="doing"></i>进行中</span><span><i class="todo"></i>待做</span><span><i class="blocked"></i>卡住</span></div>
+ </div>
+ <!-- legacy svg kept hidden for mini/market helpers that may still expect #svg -->
+ <svg id="svg" hidden aria-hidden="true"></svg>
+</div>
+ <div id="forest-detail" class="card detail"></div>
+ <div id="market-view" class="card market-wrap" style="display:none"><h2 style="margin:8px 12px">果子市集</h2><div class="sub" style="margin:0 12px 12px">公开的树 · 封面是一棵微缩树影</div><div class="mgrid" id="mgrid"></div></div>
+</div>
+<svg width="0" height="0"><defs>
+<symbol id="i-doc" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z M14 3v4h4 M9 12h6 M9 16h6" fill="none" stroke="#6B4F3A" stroke-width="1.6"/></symbol>
+<symbol id="i-img" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="#6B4F3A" stroke-width="1.6"/><path d="M3 16l5-5 4 4 3-3 6 6" fill="none" stroke="#6B4F3A" stroke-width="1.6"/></symbol>
+<symbol id="i-clip" viewBox="0 0 24 24"><path d="M8 12l6-6a3 3 0 014 4l-8 8a5 5 0 01-7-7l7-7" fill="none" stroke="#6B4F3A" stroke-width="1.6"/></symbol>
+
+<symbol id="i-pdf" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z M14 3v4h4" fill="none" stroke="#6B4F3A" stroke-width="1.6"/><text x="8" y="17" font-size="6" fill="#C8574A" font-family="sans-serif">PDF</text></symbol>
+<symbol id="i-code" viewBox="0 0 24 24"><path d="M8 8l-4 4 4 4M16 8l4 4-4 4M13 6l-2 12" fill="none" stroke="#6B4F3A" stroke-width="1.6" stroke-linecap="round"/></symbol>
+<symbol id="i-xls" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z M14 3v4h4" fill="none" stroke="#6B4F3A" stroke-width="1.6"/><path d="M9 12l3 3 3-3M9 17l3-3 3 3" fill="none" stroke="#5E7D4F" stroke-width="1.4"/></symbol>
+</defs></svg>
+<script src="willow-canvas.js?v=s17c"></script>
+<script>
+const api=(p,o={})=>{
+  const h={...(o.headers||{})};if(TOKEN)h['Authorization']='Bearer '+TOKEN;
+  if(!(o.body instanceof FormData) && !h['Content-Type']) h['Content-Type']='application/json';
+  return fetch('/api/v1'+p,{...o,headers:h}).then(async r=>{
+    const t=await r.text(); let j; try{j=JSON.parse(t)}catch{j={msg:t}}
+    if(r.status===422&&Array.isArray(j.detail)&&j.detail.some(d=>(d.loc||[]).includes('x-user-id'))){authFail();throw j}
+    if(r.status===401&&!p.startsWith('/auth/login')&&!p.startsWith('/auth/register')){authFail();throw j}
+    if(!r.ok){if(j&&typeof j==='object')j.status=r.status; throw j} return j;
+  });
+};
+const C={bud:'#A8C686',leaf:'#5E7D4F',fruit:'#E08A4B',dead:'#8A8F86'},N={bud:'嫩芽·进行中',leaf:'绿叶·已完成',fruit:'果实',dead:'枯枝·放弃'};
+const ICO={text:'#i-doc',image:'#i-img',file:'#i-clip',doc:'#i-doc',pdf:'#i-pdf',excel:'#i-xls',code:'#i-code'};
+let ro=false,mock=false,sugSrc=null,sugHint='',sugErr='',tree=null,sel=null,ghosts=null,loading=false,P={},view='forest',atts=[],uploading=false,attQ='',attSort='newest',collapsed=new Map(),dragState=null,_treePtrBound=false,TRUNK_W=56;
+const SRC_KEY='guozi_node_src';
+const RING_KEY='guozi_ring_tier';
+let ringTier=new Map();
+let includeDemo=false;
+function loadRingTier(){try{const o=JSON.parse(sessionStorage.getItem(RING_KEY)||'{}');ringTier=new Map(Object.entries(o).map(([k,v])=>[+k,+v]))}catch{ringTier=new Map()}}
+function saveRingTier(){const o={};ringTier.forEach((v,k)=>{o[k]=v});sessionStorage.setItem(RING_KEY,JSON.stringify(o))}
+loadRingTier();
+function loadSrcMap(){try{return JSON.parse(localStorage.getItem(SRC_KEY)||'{}')}catch{return {}}}
+function saveNodeSrc(id,src){if(!id||!src)return;const m=loadSrcMap();m[id]=src;localStorage.setItem(SRC_KEY,JSON.stringify(m))}
+function nodeSrc(n){if(!n)return null;
+  // API source is authoritative — example must never be remapped to ai
+  if(n.source==='example'||n.source==='mock')return 'example';
+  if(n.source==='ai')return 'ai';
+  if(n.generated_by==='example'||n.generated_by==='mock')return 'example';
+  if(n.generated_by==='ai')return 'ai';
+  const fs=n.from_suggestion;
+  if(fs){
+    if(fs.mock===true||fs.source==='example'||fs.source==='mock'||fs.generated_by==='example'||fs.generated_by==='mock')return 'example';
+    if(fs.generated_by==='ai'||fs.source==='ai')return 'ai';
+    // do NOT treat mock===false / undefined as ai
+  }
+  const m=loadSrcMap()[n.id];
+  if(m==='example'||m==='mock')return 'example';
+  if(m==='ai')return 'ai';
+  return null}
+function srcBadge(src,cls=''){if(src==='ai')return `<span class="badge ai ${cls}">AI 生成</span>`;if(src==='example'||src==='mock')return `<span class="badge mock ${cls}">示例</span>`;return ''}
+function cardBadge(g){
+  // mock response → always 示例, never AI 生成
+  if(mock===true||sugSrc==='example')return srcBadge('example');
+  if(g&&(g.generated_by==='example'||g.generated_by==='mock'))return srcBadge('example');
+  if((g&&g.generated_by==='ai')||sugSrc==='ai')return srcBadge('ai');
+  return ''}
+const detailEl=()=>document.getElementById('forest-detail');
+
+function goto(v){
+  view=v;document.body.classList.remove('ro');if(v==='forest'&&ro){ro=false;tree=null;sel=null;loadList()}document.getElementById('robar')?.remove();
+  document.body.classList.toggle('market',v==='market');
+  document.getElementById('tab-forest').classList.toggle('on',v==='forest');
+  document.getElementById('tab-market').classList.toggle('on',v==='market');
+  document.getElementById('forest-view').style.display=v==='forest'?'':'none';
+  document.getElementById('forest-main').style.display=v==='forest'?'':'none';
+  document.getElementById('forest-detail').style.display=v==='forest'?'':'none';
+  document.getElementById('market-side').style.display=v==='market'?'':'none';
+  document.getElementById('market-view').style.display=v==='market'?'flex':'none';
+  if(v==='market') loadMarket();
+  else if(tree) setTimeout(draw,50);
+}
+
+async function renderList(){
+  const ts=(await api('/trees')).sort((a,b)=>b.needs_water-a.needs_water);
+  const t=(tree&&ts.find(x=>x.id==tree.id))||ts[0];
+  list.innerHTML=t?`<div class="tl" data-id="${t.id}" onclick="openTree(${t.id})"><span class="tlicon">${t.needs_water?'🍂':t.forked_from?'🌱':'🌳'}</span> ${t.title}${t.forked_from?'<span class="caibadge">采来</span>':''}<div class="sub">${t.needs_water?'7 天没长新枝 · 该浇水了':'最近有新枝'}${t.is_public?' · 已上架':''}</div></div>`:'<div class="sub">还没有树</div>';
+  return ts;
+}
+async function applyTree(t){
+  tree=t; tt.innerHTML=tree.title+treeMenuHTML(); ghosts=null;
+  (tree.nodes||[]).forEach(n=>{if(n.source==='ai'||n.source==='example')saveNodeSrc(n.id,n.source)});
+  sel=sel&&tree.nodes.find(n=>n.id==sel.id)||tree.nodes.find(n=>n.parent_id)||tree.nodes.find(n=>!n.parent_id);
+  if(view!=='forest') goto('forest');
+  bindTreePointer(); draw(); await show();
+}
+async function openMyTree(){
+  ro=false;document.body.classList.remove('ro');document.getElementById('robar')?.remove();
+  await applyTree(await api('/me/tree'+(includeDemo?'?include_demo=true':'')));
+}
+async function loadList(open){
+  const ts=await renderList();
+  if(open!=null&&open!==false&&open!=='') await openTree(open);
+  else if(!tree) await openMyTree();
+}
+async function openTree(id){
+  ro=false;document.body.classList.remove('ro');document.getElementById('robar')?.remove();
+  await applyTree(await api('/trees/'+id+(includeDemo?'?include_demo=true':'')));
+}
+
+function kidsOf(id){return (tree.nodes||[]).filter(n=>n.parent_id==id)}
+function descCount(id){let n=0;const st=kidsOf(id).map(k=>k.id);while(st.length){const i=st.pop();n++;kidsOf(i).forEach(k=>st.push(k.id))}return n}
+function isFoldedAway(id){
+  let n=(tree.nodes||[]).find(x=>x.id==id);
+  while(n&&n.parent_id){if(collapsed.get(n.parent_id))return true;n=(tree.nodes||[]).find(x=>x.id==n.parent_id)}
+  return false}
+function toggleFold(id,ev){if(ev){ev.stopPropagation();ev.preventDefault()}
+  collapsed.set(id,!collapsed.get(id));draw()}
+function isTrunkNode(n){return !n||!n.parent_id||n.is_trunk}
+function isIdeaNode(n){if(!n||!n.parent_id)return false;if(n.role==='idea'||n.is_idea)return true;if(n.role==='stage'||n.role==='approach')return false;const p=(tree.nodes||[]).find(x=>x.id==n.parent_id);return !!(p&&!p.parent_id)}
+function isStage(n){if(!n||!n.parent_id)return false;if(n.role==='stage')return true;if(n.role==='approach'||n.role==='idea')return false;if(n.role)return false;const p=(tree.nodes||[]).find(x=>x.id==n.parent_id);return !!(p&&isIdeaNode(p))}
+function isApproach(n){if(!n||!n.parent_id)return false;if(n.role==='approach')return true;if(n.role==='stage'||n.role==='idea')return false;const p=(tree.nodes||[]).find(x=>x.id==n.parent_id);return !!(p&&isStage(p))}
+function stagesOf(ideaId){return kidsOf(ideaId).filter(isStage).sort((a,b)=>(a.sort_order??0)-(b.sort_order??0)||a.id-b.id)}
+function approachesOf(stageId){return kidsOf(stageId).filter(n=>isApproach(n)||(!isStage(n)&&!isIdeaNode(n))).sort((a,b)=>(a.sort_order??0)-(b.sort_order??0)||a.id-b.id)}
+/* ===== s17: willow canvas forest (replaces SVG umbrella layout) ===== */
+function isSmokeTitle(t){
+  t=String(t||'');
+  return /Round\s*13b|Round13b|ripeness[-_]?smoke|smoke[-_]?test|__test__|测试种子|test[-_]?seed|年轮对比|圆十四|熟度树林|src-check|稀疏叶枝|中密叶枝|茂密叶枝|熟度(青果|膨大|上色)|摘熟(目标|演示)|待摘熟枝|摘熟演示|^perm$/i.test(t);
+}
+function nodeVisualState(n){
+  if(!n) return 'todo';
+  if(n.state==='dead' || n.progress==='stuck' || n.progress==='blocked' || n.state==='blocked') return 'blocked';
+  if(n.note && /卡住/.test(n.note)) return 'blocked';
+  // Prefer explicit progress; only fall back to legacy state when progress is unset
+  if(n.progress){
+    if(n.progress==='done') return 'done';
+    if(n.progress==='active') return 'doing';
+    if(n.progress==='pending') return 'todo';
+  }
+  if(n.state==='leaf'||n.state==='fruit') return 'done';
+  if(n.state==='bud') return 'doing';
+  return 'todo';
+}
+function ripeFromNode(n){
+  if(!n) return null;
+  const r=n.ripeness||'none';
+  if(r==='ripe'||n.state==='fruit'&&r==='ripe') return {ripe:3,harvested:true};
+  if(r==='coloring') return {ripe:2,harvested:false};
+  if(r==='swelling') return {ripe:1,harvested:false};
+  if(r==='green') return {ripe:0,harvested:false};
+  return null;
+}
+function fruitNameOf(n){
+  if(!n) return '果实';
+  if(n.note && n.state==='fruit') return n.note.slice(0,24);
+  return n.title||'果实';
+}
+
+/** Map live tree.nodes → Willow idea.branches (idea=strand, stages=steps, approach=fork strand). */
+function treeToIdea(t){
+  const all=t.nodes||[];
+  const ideas=all.filter(n=>isIdeaNode(n)&&!isSmokeTitle(n.title))
+    .sort((a,b)=>(a.sort_order??0)-(b.sort_order??0)||a.id-b.id);
+  const branches=[];
+  const NOW=Date.now();
+  ideas.forEach(idea=>{
+    const stages=stagesOf(idea.id).filter(s=>!isSmokeTitle(s.title));
+    const steps=stages.map(st=>({
+      id:st.id, t:st.title, c:NOW-86400000, st:null, d:null, s:null, note:st.note||'', node:st
+    }));
+    // synthesize step dates so buildTree ordering works; visual status comes from nodeVisualState
+    steps.forEach((s,i)=>{
+      const vs=nodeVisualState(s.node);
+      s.c=NOW-(steps.length-i)*86400000;
+      if(vs==='done'){ s.st=s.c; s.d=s.c+3600000; s.s=null; }
+      else if(vs==='doing'){ s.st=s.c; s.d=null; s.s='doing'; }
+      else if(vs==='blocked'){ s.st=s.c; s.d=null; s.s='blocked'; }
+    });
+    let fruitNode=idea;
+    let fr=ripeFromNode(idea);
+    if(!fr){
+      // tip fruit from last stage / idea completion ratio
+      const done=steps.filter(s=>nodeVisualState(s.node)==='done').length;
+      const tot=Math.max(1,steps.length);
+      const ratio=done/tot;
+      if(ratio>=0.33 || (idea.ripeness&&idea.ripeness!=='none')){
+        fr={ripe:ratio>=0.999?2:ratio>=0.66?1:0, harvested:false};
+      }
+    }
+    // harvested if ripe
+    if(fr&&fr.harvested){ /* keep */ }
+    else if(idea.ripeness==='ripe'){ fr={ripe:3,harvested:true}; }
+    const fruit=fr?{name:fruitNameOf(fruitNode), h:fr.harvested?NOW:null, _ripe:fr.ripe, _node:fruitNode}:null;
+    branches.push({
+      id:'idea-'+idea.id, name:idea.title, c:NOW-ideas.length*86400000,
+      dropped:idea.state==='dead'?NOW:null, dropNote:idea.note||'',
+      fruit, steps, node:idea, kind:'idea'
+    });
+    // approaches = side fork strands
+    stages.forEach(st=>{
+      approachesOf(st.id).filter(a=>!isSmokeTitle(a.title)).forEach(ap=>{
+        const vs=nodeVisualState(ap);
+        const step={id:ap.id,t:ap.title,c:NOW,st:null,d:null,s:null,note:ap.note||'',node:ap};
+        if(vs==='done'){step.st=NOW;step.d=NOW;}
+        else if(vs==='doing'){step.st=NOW;step.s='doing';}
+        else if(vs==='blocked'){step.st=NOW;step.s='blocked';}
+        const afr=ripeFromNode(ap);
+        branches.push({
+          id:'ap-'+ap.id, name:ap.title, c:NOW,
+          dropped:ap.state==='dead'?NOW:null, dropNote:ap.note||'',
+          fruit:afr?{name:fruitNameOf(ap),h:afr.harvested?NOW:null,_ripe:afr.ripe,_node:ap}:null,
+          steps:[step], node:ap, kind:'approach', parentStageId:st.id
+        });
+      });
+    });
+  });
+  // orphan non-idea children of trunk (legacy flat branches) as strands
+  const root=all.find(n=>!n.parent_id);
+  if(root){
+    kidsOf(root.id).filter(n=>!isIdeaNode(n)&&!isStage(n)&&!isApproach(n)&&!isSmokeTitle(n.title)).forEach(n=>{
+      const vs=nodeVisualState(n);
+      const step={id:n.id,t:n.title,c:NOW,st:null,d:null,s:null,note:n.note||'',node:n};
+      if(vs==='done'){step.st=NOW;step.d=NOW;}
+      else if(vs==='doing'){step.st=NOW;step.s='doing';}
+      else if(vs==='blocked'){step.st=NOW;step.s='blocked';}
+      const afr=ripeFromNode(n);
+      branches.push({
+        id:'leg-'+n.id, name:n.title, c:NOW,
+        dropped:n.state==='dead'?NOW:null, dropNote:n.note||'',
+        fruit:afr?{name:fruitNameOf(n),h:afr.harvested?NOW:null,_ripe:afr.ripe,_node:n}:null,
+        steps:[step], node:n, kind:'legacy'
+      });
+    });
+  }
+  return {title:t.title||'我的树', planted:NOW-43*86400000, goal:'', branches};
+}
+
+const WUI={
+  idea:null, wtree:null, view:null, dv:null, els:null,
+  focus:null, windOn:true, reduced:false, S:1, G:1, dpr:1,
+  needDraw:false, raf:0, lastDraw:-1e9, lastPlace:0, sig:null,
+  stage:null, canvas:null, overlay:null, hills:null, ctx:null
+};
+
+function mk(tag,cls,html){const e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e}
+function screenPt(st,s,rest){
+  const p=rest?Willow.strandRestPoint(st,s):Willow.strandPoint(WUI.wtree,st,s);
+  const b=WUI.wtree.base,S=WUI.S;
+  return {x:b.x+(p.x-b.x)*S, y:b.y+(p.y-b.y)*S};
+}
+function groundFruitX(bi){
+  const T=WUI.wtree, st=T.dataStrands[bi], tip=screenPt(st,st.L,true), b=T.base;
+  const minD=T.baseW*WUI.S+30;
+  let x=tip.x;
+  if(Math.abs(x-b.x)<minD) x=b.x+(x<b.x?-minD:minD);
+  return Math.max(22,Math.min(T.W-22,x));
+}
+function seedPos(){
+  const T=WUI.wtree;
+  return {x:T.base.x+Math.min(1,WUI.S*2.5)*(T.baseW*0.7+26), y:T.groundY+14};
+}
+const tr=(e,x,y,k)=>{e.style.transform=`translate(${x.toFixed(1)}px,${y.toFixed(1)}px)`+(k!=null&&k!==1?` scale(${k.toFixed(3)})`:'')};
+
+function buildWillowView(idea){
+  // Live visual status from API nodes (ignore date-based deriveAt)
+  return idea.branches.map(b=>{
+    const steps=b.steps.map(s=>({ref:s, st:nodeVisualState(s.node)}));
+    const dry=!!(b.node&&b.node.state==='dead');
+    const done=steps.filter(x=>x.st==='done').length;
+    let fruit=null;
+    if(b.fruit){
+      const harvested=b.fruit.h!=null;
+      let ripe=b.fruit._ripe;
+      if(ripe==null){
+        const tot=Math.max(1,steps.length);
+        const r=done/tot;
+        ripe=harvested?3:r>=0.999?2:r>=0.66?1:r>=0.33?0:-1;
+      }
+      if(ripe>=0) fruit={ripe:Math.min(3,ripe), harvested:harvested||ripe===3};
+    }
+    return {ref:b, steps, vis:steps.length, done, dry, fruit, stage:''};
+  });
+}
+function computeDV(){
+  return WUI.wtree.dataStrands.map((st,bi)=>{
+    const v=WUI.view[bi]; if(!v) return null;
+    let last=-1,lastDone=-1,doing=-1;
+    v.steps.forEach((x,j)=>{if(x.st) last=j; if(x.st==='done') lastDone=j; if(x.st==='doing'&&doing<0) doing=j;});
+    const lastS=last>=0?st.nodeS[last]:8;
+    let len=lastS+14;
+    if(v.fruit&&!v.fruit.harvested&&st.fruitS) len=st.fruitS;
+    len=Math.min(len,st.L);
+    const leafy=lastDone>=0?Math.min(len,st.nodeS[lastDone]+st.gap*0.5):0;
+    const bud=doing>=0?st.nodeS[doing]+4:leafy;
+    return {len,leafy,bud,dry:v.dry};
+  });
+}
+function focusNow(){return (WUI.focus!=null&&WUI.view&&WUI.view[WUI.focus])?WUI.focus:null}
+
+function buildOverlay(){
+  const W=Willow, ov=WUI.overlay; ov.textContent='';
+  const E={branches:[], seed:null};
+  const labels=[], inter=[];
+  WUI.idea.branches.forEach((b,bi)=>{
+    const be={nodes:[],labels:[],blabel:null,fruit:null,flabel:null,gfruit:null,glabel:null};
+    const bl=mk('button','blabel'); bl.type='button'; bl.textContent=W.clip(b.name,10.5);
+    bl.addEventListener('click',ev=>{ev.stopPropagation(); selectBranch(bi);});
+    be.blabel=bl; inter.push(bl);
+    b.steps.forEach((s,si)=>{
+      const n=mk('button','node','<span class="dot"></span>'); n.type='button';
+      n.dataset.nid=s.node?s.node.id:'';
+      n.addEventListener('click',ev=>{ev.stopPropagation(); selectStep(bi,si);});
+      n.addEventListener('pointerenter',()=>peek(bi,si,true));
+      n.addEventListener('pointerleave',()=>peek(bi,si,false));
+      const l=mk('span','lbl'); l.textContent=W.clip(s.t,9.6);
+      be.nodes.push(n); be.labels.push(l); labels.push(l); inter.push(n);
+    });
+    if(b.fruit){
+      const f=mk('button','fruit',W.FRUIT_SVG(false)); f.type='button'; f.style.transformOrigin='18px 4px';
+      f.addEventListener('click',ev=>{ev.stopPropagation(); selectBranch(bi);});
+      const g=mk('button','fruit ground',W.FRUIT_SVG(true)); g.type='button'; g.style.transformOrigin='18px 30px';
+      g.addEventListener('click',ev=>{ev.stopPropagation(); selectBranch(bi);});
+      const fl=mk('span','lbl fruit-l'); fl.textContent=W.clip(b.fruit.name,11);
+      const gl=mk('span','lbl fruit-l'); gl.textContent=W.clip(b.fruit.name,11);
+      Object.assign(be,{fruit:f,flabel:fl,gfruit:g,glabel:gl});
+      labels.push(fl,gl); inter.push(f,g);
+    }
+    E.branches.push(be);
+  });
+  const root=(tree.nodes||[]).find(n=>!n.parent_id);
+  const sd=mk('button','seed',W.SEED_SVG); sd.type='button';
+  sd.setAttribute('aria-label','种子：'+(tree.title||''));
+  const sl=mk('span','lbl seed-l'); sl.textContent='种下：'+W.clip(tree.title||'',14); labels.push(sl); E.seedLabel=sl;
+  sd.addEventListener('click',ev=>{ev.stopPropagation(); if(root) pickNode(root.id); else clearFocus();});
+  E.seed=sd; inter.push(sd);
+  for(const l of labels) ov.appendChild(l);
+  for(const e of inter) ov.appendChild(e);
+  for(const l of labels){l._w=l.offsetWidth; l._h=l.offsetHeight;}
+  E.seedLabel.hidden=true;
+  for(const be of E.branches){be.blabel._w=be.blabel.offsetWidth; be.blabel._h=be.blabel.offsetHeight;}
+  WUI.els=E;
+}
+
+function syncOverlay(){
+  const E=WUI.els, F=focusNow(), W=Willow;
+  if(!E||!WUI.idea) return;
+  WUI.idea.branches.forEach((b,bi)=>{
+    const be=E.branches[bi], v=WUI.view[bi], other=F!=null&&F!==bi;
+    be.blabel.hidden=!v;
+    if(v){
+      be.blabel.classList.toggle('dryb',v.dry);
+      be.blabel.classList.toggle('dim',other);
+      be.blabel.classList.toggle('sel',!!(sel&&b.node&&sel.id===b.node.id));
+      const txt=W.clip(b.name,10.5)+(v.dry?' · 已放下':'');
+      if(be.blabel.textContent!==txt){be.blabel.textContent=txt; be.blabel._w=be.blabel.offsetWidth; be.blabel._h=be.blabel.offsetHeight;}
+    }
+    b.steps.forEach((s,si)=>{
+      const n=be.nodes[si], l=be.labels[si], st=v?v.steps[si].st:null;
+      n.hidden=!st; l.hidden=!st;
+      if(!st) return;
+      if(n.dataset.s!==st){n.dataset.s=st; n.firstChild.innerHTML=W.ICON[st]||'';}
+      n.classList.toggle('dry',v.dry);
+      n.classList.toggle('dim',other);
+      n.classList.toggle('sel',!!(sel&&s.node&&sel.id===s.node.id));
+      l.className='lbl '+(v.dry?'todo':st);
+    });
+    if(be.fruit){
+      const fr=v&&v.fruit;
+      be.fruit.hidden=!fr||fr.harvested; be.flabel.hidden=be.fruit.hidden;
+      be.gfruit.hidden=!fr||!fr.harvested; be.glabel.hidden=be.gfruit.hidden;
+      if(fr){
+        const c=`var(--fruit-${Math.min(2,fr.ripe)})`;
+        be.fruit.style.setProperty('--fc',c); be.gfruit.style.setProperty('--fc','var(--fruit-2)');
+        be.fruit.classList.toggle('ripe2',fr.ripe===2);
+        for(const x of [be.fruit,be.gfruit]){x.classList.toggle('dim',other); x.classList.toggle('sel',!!(sel&&b.node&&sel.id===b.node.id));}
+      }
+    }
+  });
+  E.seed.classList.toggle('sel',!!(sel&&!sel.parent_id));
+  E.seedLabel.hidden=WUI.S>0;
+}
+
+function positionOverlay(){
+  const T=WUI.wtree, E=WUI.els; if(!T||!E||!WUI.idea) return;
+  const k=Math.max(0.5,Math.min(1,WUI.S*1.15));
+  WUI.idea.branches.forEach((b,bi)=>{
+    const v=WUI.view[bi]; if(!v) return;
+    const be=E.branches[bi], st=T.dataStrands[bi];
+    const top=screenPt(st,12);
+    if(be.blabel._off) tr(be.blabel, top.x+be.blabel._off.x, top.y+be.blabel._off.y);
+    b.steps.forEach((s,si)=>{
+      if(!v.steps[si].st) return;
+      const p=screenPt(st, st.nodeS[si]);
+      tr(be.nodes[si], p.x, p.y, k);
+      const l=be.labels[si]; if(l._off) tr(l, p.x+l._off.x, p.y+l._off.y);
+      // keep P map for popovers / fork anim
+      if(s.node) P[s.node.id]={x:p.x,y:p.y,d:2,side:p.x<(T.W/2)?'left':'right',curve:0.35};
+    });
+    if(be.fruit&&v.fruit){
+      if(!v.fruit.harvested){
+        const p=screenPt(st, st.fruitS);
+        tr(be.fruit, p.x, p.y, k);
+        if(be.flabel._off) tr(be.flabel, p.x+be.flabel._off.x, p.y+be.flabel._off.y);
+        if(b.node) P[b.node.id]=P[b.node.id]||{x:p.x,y:p.y,d:1,side:p.x<(T.W/2)?'left':'right',curve:0.35};
+      } else {
+        const x=groundFruitX(bi), y=T.groundY+10;
+        tr(be.gfruit, x, y, k);
+        if(be.glabel._off) tr(be.glabel, x+be.glabel._off.x, y+be.glabel._off.y);
+      }
+    }
+    if(b.node&&!P[b.node.id]){
+      const tp=screenPt(st,12);
+      P[b.node.id]={x:tp.x,y:tp.y,d:1,side:tp.x<(T.W/2)?'left':'right',curve:0.35};
+    }
+  });
+  const sp=seedPos(); tr(E.seed, sp.x, sp.y, WUI.S>0?1:1.5);
+  if(WUI.S===0) tr(E.seedLabel, sp.x+26, sp.y-E.seedLabel._h/2-2);
+  const root=(tree.nodes||[]).find(n=>!n.parent_id);
+  if(root) P[root.id]={x:sp.x,y:sp.y-20,d:0,side:'right',curve:0.2};
+}
+
+function placeLabels(){
+  const T=WUI.wtree, E=WUI.els, F=focusNow(), S=WUI.S;
+  if(!T||!E||!WUI.idea) return;
+  const W=T.W, H=T.H, placed=[], items=[];
+  const tools=WUI.stage.querySelector('.stage-tools');
+  if(tools){
+    const trc=tools.getBoundingClientRect(), sr=WUI.stage.getBoundingClientRect();
+    placed.push({x:trc.left-sr.left-4,y:0,w:trc.width+14,h:trc.height+16});
+  }
+  placed.push({x:0,y:0,w:160,h:48}); // title area
+  const sp=seedPos(); placed.push({x:sp.x-16,y:sp.y-16,w:32,h:30});
+  const showSteps=S>=0.62, showNames=S>=0.45, narrow=W<560;
+  WUI.idea.branches.forEach((b,bi)=>{
+    const v=WUI.view[bi]; if(!v) return;
+    const be=E.branches[bi], st=T.dataStrands[bi], foc=F===bi, other=F!=null&&!foc;
+    const boost=foc?100:0;
+    b.steps.forEach((s,si)=>{
+      const stt=v.steps[si].st; if(!stt) return;
+      const p=screenPt(st, st.nodeS[si], true);
+      if(!other) placed.push({x:p.x-11,y:p.y-11,w:22,h:22});
+      const l=be.labels[si], w=l._w, h=l._h;
+      const pri=v.dry?8:stt==='doing'?(narrow?60:40):stt==='blocked'?(narrow?58:38):stt==='done'?20+si*0.2:16-si*0.2;
+      items.push({el:l,ax:p.x,ay:p.y,pri:pri+boost,skip:!showSteps||other,
+        c:[[14,-h/2],[-14-w,-h/2],[14,-h/2+10],[-14-w,-h/2+10],[14,-h/2-10],[-14-w,-h/2-10]]});
+    });
+    const tp=screenPt(st,12,true), bw=be.blabel._w, bh=be.blabel._h;
+    items.push({el:be.blabel,ax:tp.x,ay:tp.y,pri:(v.dry?30:50)+boost,skip:!showNames,
+      c:[[10,-bh/2],[-10-bw,-bh/2],[-bw/2,-bh-12],[10,-bh/2+14],[-10-bw,-bh/2+14]]});
+    if(be.fruit&&v.fruit){
+      if(!v.fruit.harvested){
+        const p=screenPt(st,st.fruitS,true); placed.push({x:p.x-12,y:p.y+5,w:24,h:26});
+        const l=be.flabel,w=l._w,h=l._h;
+        items.push({el:l,ax:p.x,ay:p.y,pri:(narrow&&v.fruit.ripe===2?55:45)+boost,skip:!showSteps||other,
+          c:[[16,17-h/2],[-16-w,17-h/2],[-w/2,36]]});
+      } else {
+        const x=groundFruitX(bi), y=T.groundY+10; placed.push({x:x-12,y:y-22,w:24,h:24});
+        const l=be.glabel,w=l._w,h=l._h;
+        items.push({el:l,ax:x,ay:y,pri:44+boost,skip:!showNames,
+          c:[[-w/2,6],[15,-11-h/2],[-15-w,-11-h/2]]});
+      }
+    }
+  });
+  items.sort((a,b)=>b.pri-a.pri);
+  const hit=r=>placed.some(q=>r.x<q.x+q.w+2&&r.x+r.w+2>q.x&&r.y<q.y+q.h+2&&r.y+r.h+2>q.y);
+  const inB=r=>r.x>=4&&r.y>=4&&r.x+r.w<=W-4&&r.y+r.h<=H-4;
+  for(const it of items){
+    const w=it.el._w, h=it.el._h;
+    let ok=null, fallback=null;
+    for(const [dx,dy] of it.c){
+      const r={x:it.ax+dx,y:it.ay+dy,w,h};
+      if(!inB(r)) continue;
+      if(!fallback) fallback={x:dx,y:dy};
+      if(!it.skip&&!hit(r)){ok={x:dx,y:dy}; placed.push(r); break;}
+    }
+    it.el._off=ok||fallback||{x:it.c[0][0],y:it.c[0][1]};
+    it.el.classList.toggle('hide',!ok);
+  }
+  WUI.lastPlace=performance.now();
+}
+function peek(bi,si,on){
+  const l=WUI.els&&WUI.els.branches[bi]&&WUI.els.branches[bi].labels[si];
+  if(l) l.classList.toggle('peek', on&&l.classList.contains('hide'));
+}
+
+function selectStep(bi,si){
+  const b=WUI.idea.branches[bi], s=b.steps[si];
+  WUI.focus=bi;
+  if(s&&s.node) pickNode(s.node.id);
+  else { syncOverlay(); placeLabels(); kickWillow(); }
+}
+function selectBranch(bi){
+  const b=WUI.idea.branches[bi];
+  WUI.focus=bi;
+  if(b&&b.node) pickNode(b.node.id);
+  else { syncOverlay(); placeLabels(); kickWillow(); }
+}
+function clearFocus(){
+  WUI.focus=null;
+  syncOverlay(); placeLabels(); kickWillow();
+}
+
+function kickWillow(){ WUI.needDraw=true; if(!WUI.raf) WUI.raf=requestAnimationFrame(willowLoop); }
+function willowLoop(ts){
+  WUI.raf=0;
+  const wind=WUI.windOn&&!WUI.reduced;
+  if(WUI.needDraw||ts-WUI.lastDraw>=30){
+    WUI.needDraw=false; WUI.lastDraw=ts;
+    if(WUI.wtree&&WUI.ctx){
+      Willow.sway(WUI.wtree, ts/1000, wind?1:0, 0.45);
+      Willow.drawScene(WUI.ctx, WUI.wtree, {G:WUI.G, S:WUI.S, t:ts/1000, dv:WUI.dv, focus:focusNow(), dpr:WUI.dpr, windOn:wind});
+      positionOverlay();
+    }
+  }
+  if(!WUI.raf&&((wind&&!document.hidden))) WUI.raf=requestAnimationFrame(willowLoop);
+}
+
+function ensureWillowDOM(){
+  if(WUI.stage) return;
+  WUI.stage=document.getElementById('wstage');
+  WUI.canvas=document.getElementById('wcanvas');
+  WUI.overlay=document.getElementById('woverlay');
+  WUI.hills=document.getElementById('whills');
+  if(WUI.canvas) WUI.ctx=WUI.canvas.getContext('2d');
+  const rm=matchMedia('(prefers-reduced-motion: reduce)');
+  WUI.reduced=rm.matches; rm.addEventListener('change',()=>{WUI.reduced=rm.matches; kickWillow();});
+  if(typeof Willow!=='undefined') Willow.readTokens();
+  const wb=document.getElementById('windBtn');
+  if(wb&&!wb._bound){ wb._bound=true;
+    wb.addEventListener('click',()=>{WUI.windOn=!WUI.windOn; wb.setAttribute('aria-pressed',WUI.windOn); document.getElementById('windTxt').textContent=WUI.windOn?'风':'无风'; kickWillow();});
+  }
+  const db=document.getElementById('demoBtn');
+  if(db&&!db._bound){ db._bound=true;
+    db.addEventListener('click',async()=>{
+      includeDemo=!includeDemo;
+      db.setAttribute('aria-pressed',includeDemo?'true':'false');
+      db.classList.toggle('on',!!includeDemo);
+      try{ if(tree&&tree.id) await openTree(tree.id); else await openMyTree(); }catch(e){ console.warn(e); }
+    });
+  }
+  if(WUI.stage&&!WUI.stage._clickBound){ WUI.stage._clickBound=true;
+    WUI.stage.addEventListener('click',e=>{
+      if(e.target.closest('button')) return;
+      const r=WUI.stage.getBoundingClientRect(), x=e.clientX-r.left, y=e.clientY-r.top;
+      let best=null, bd=20;
+      if(WUI.wtree&&WUI.dv) WUI.wtree.dataStrands.forEach((st,bi)=>{
+        const d=WUI.dv[bi]; if(!d) return;
+        for(let s=0;s<=d.len;s+=5){const p=screenPt(st,s); const dd=Math.hypot(p.x-x,p.y-y); if(dd<bd){bd=dd;best=bi;}}
+      });
+      if(best!=null) selectBranch(best); else if(WUI.focus!=null) clearFocus();
+    });
+  }
+  if(WUI.stage&&!WUI.stage._ro){ WUI.stage._ro=true;
+    let rt=0, lastW=0, lastH=0;
+    new ResizeObserver(()=>{
+      const r=WUI.stage.getBoundingClientRect();
+      if(Math.abs(r.width-lastW)<2&&Math.abs(r.height-lastH)<2) return;
+      lastW=r.width; lastH=r.height;
+      clearTimeout(rt); rt=setTimeout(()=>tree&&draw(), WUI.wtree?120:0);
+    }).observe(WUI.stage);
+  }
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden) kickWillow();});
+}
+
+function layoutWillow(){
+  ensureWillowDOM();
+  if(!WUI.stage||typeof Willow==='undefined'||!tree) return null;
+  const r=WUI.stage.getBoundingClientRect(), W=Math.round(r.width), H=Math.round(r.height);
+  if(!W||!H) return null;
+  WUI.dpr=Math.min(2, window.devicePixelRatio||1);
+  WUI.canvas.width=Math.round(W*WUI.dpr); WUI.canvas.height=Math.round(H*WUI.dpr);
+  WUI.idea=treeToIdea(tree);
+  WUI.wtree=Willow.buildTree(W,H,WUI.idea);
+  Willow.prepRender(WUI.wtree);
+  Willow.drawHills(WUI.hills, W, H, WUI.wtree.groundY);
+  WUI.view=buildWillowView(WUI.idea);
+  // growth / size from data density
+  const nSteps=WUI.idea.branches.reduce((a,b)=>a+b.steps.length,0);
+  WUI.G=Math.min(1, 0.35+nSteps*0.04);
+  WUI.S=WUI.idea.branches.length? Math.min(1, 0.55+nSteps*0.03):0.2;
+  WUI.dv=computeDV();
+  buildOverlay();
+  syncOverlay();
+  placeLabels();
+  // update focus from sel
+  if(sel){
+    const ix=WUI.idea.branches.findIndex(b=>{
+      if(b.node&&b.node.id===sel.id) return true;
+      return b.steps.some(s=>s.node&&s.node.id===sel.id);
+    });
+    if(ix>=0) WUI.focus=ix;
+  }
+  kickWillow();
+  return {w:W,h:H};
+}
+
+/* stubs kept for any residual SVG helpers */
+function weepCtrl(a,b,curve,side){
+  const dx=b.x-a.x, dy=b.y-a.y, c=curve!=null?curve:0.35;
+  const sign=side==='left'?-1:side==='right'?1:(dx>=0?1:-1);
+  return{c1x:a.x+dx*0.12+sign*(Math.abs(dx)*0.35*c+28*c),c1y:a.y+Math.max(dy*0.28,36*c),c2x:a.x+dx*0.55+sign*16*c,c2y:a.y+dy*0.78};
+}
+function weepPoint(a,b,t,curve,side){
+  const{c1x,c1y,c2x,c2y}=weepCtrl(a,b,curve,side); const u=1-t;
+  return{x:u*u*u*a.x+3*u*u*t*c1x+3*u*t*t*c2x+t*t*t*b.x, y:u*u*u*a.y+3*u*u*t*c1y+3*u*t*t*c2y+t*t*t*b.y};
+}
+function stagePathTs(n){if(n<=0)return[]; if(n===1)return[0.55]; const lo=0.25,hi=0.85; return Array.from({length:n},(_,i)=>lo+(hi-lo)*i/(n-1));}
+function layout(){ return layoutWillow()||{w:800,h:600}; }
+
+function nodeTier(n){
+  if(ringTier.has(n.id)) return ringTier.get(n.id);
+  if(n.state==='bud') return 1;
+  if(n.state==='dead') return 0;
+  return 2;
+}
+function attCount(n){return (n.attachment_count!=null)?n.attachment_count:((n.attachments||[]).length||0)}
+function leafPath(){return ''}
+function leavesNear(){return ''}
+function fruitBeside(){return ''}
+function treeDecorations(){return ''}
+function shape(){return ''}
+function srcMark(){return ''}
+function shortTitle(t,n=12){t=String(t||'');return t.length>n?t.slice(0,n)+'…':t}
+function label(){return ''}
+
+function draw(){
+  if(!tree||(view!=='forest'&&!ro)) return;
+  ensureWillowDOM();
+  if(typeof Willow==='undefined'){ console.warn('Willow missing'); return; }
+  Willow.readTokens();
+  layoutWillow();
+  // mobile bottom-sheet class
+  const det=detailEl();
+  if(det) det.classList.toggle('sheetish', window.matchMedia('(max-width:720px)').matches && !!sel);
+}
+function weepTaper(a,b,w0,w1,curve,side){
+  const{c1x,c1y,c2x,c2y}=weepCtrl(a,b,curve,side);
+  const pt=t=>{const u=1-t;return[u*u*u*a.x+3*u*u*t*c1x+3*u*t*t*c2x+t*t*t*b.x,u*u*u*a.y+3*u*u*t*c1y+3*u*t*t*c2y+t*t*t*b.y]};
+  const L=[],Rr=[];for(let i=0;i<=28;i++){const t=i/28,[x,y]=pt(t),[x2,y2]=pt(Math.min(1,t+.02)),[x1,y1]=pt(Math.max(0,t-.02)),ddx=x2-x1,ddy=y2-y1,l=Math.hypot(ddx,ddy)||1,hw=(w0+(w1-w0)*t)/2;
+  L.push([x-ddy/l*hw,y+ddx/l*hw]);Rr.push([x+ddy/l*hw,y-ddx/l*hw])}
+  return'M'+L.map(p=>p.join(',')).join('L')+'L'+Rr.reverse().map(p=>p.join(',')).join('L')+'Z'}
+function taper(a,b,w0,w1){return weepTaper(a,b,w0,w1,0.2,b.x>=a.x?'right':'left')}
+function pickNode(id){
+  sel=tree.nodes.find(n=>n.id==id);ghosts=null;sugErr='';sugHint='';mock=false;sugSrc=null;attQ='';attSort='newest';
+  if(WUI.idea){
+    const ix=WUI.idea.branches.findIndex(b=>(b.node&&b.node.id===sel.id)||b.steps.some(s=>s.node&&s.node.id===sel.id));
+    WUI.focus=ix>=0?ix:null;
+  }
+  draw(); show();
+}
+function bindTreePointer(){
+  // Willow overlay handles clicks; keep flag so applyTree stays happy
+  _treePtrBound=true;
+  ensureWillowDOM();
+}
+
+async function resetNodeLayout(){
+  if(!sel||!sel.parent_id||ro)return;
+  try{
+    const r=await api('/nodes/'+sel.id+'/layout',{method:'PATCH',body:JSON.stringify({clear:true})});
+    const L=r&&r.layout!==undefined?r.layout:null;
+    sel.layout=L; const ix=tree.nodes.findIndex(x=>x.id==sel.id); if(ix>=0)tree.nodes[ix].layout=L;
+    draw(); await show();
+  }catch(e){
+    const d=e&&(e.detail||e)||{};
+    alert((typeof d==='string'?d:(d.msg||e.msg))||'没能恢复默认位置');
+  }
+}
+
+async function loadAtts(){
+  if(!sel){atts=[];return}
+  const qs=new URLSearchParams();
+  if(attQ) qs.set('q',attQ);
+  if(attSort) qs.set('sort',attSort);
+  const qstr=qs.toString();
+  try{atts=await api('/nodes/'+sel.id+'/attachments'+(qstr?'?'+qstr:''))}catch{atts=sel.attachments||[]}
+}
+function attIcon(k){return ICO[k]||ICO.file}
+function attKindLabel(k){return {text:'文字',image:'图片',file:'文件',doc:'文档',pdf:'PDF',excel:'表格',code:'代码'}[k]||k}
+function isPreviewable(a){
+  if(a.previewable===true) return true;
+  if(a.previewable===false) return false;
+  return ['image','pdf','text','code'].includes(a.kind);
+}
+function isOffice(a){return ['doc','excel'].includes(a.kind) || /\.(docx?|xlsx?|pptx?)$/i.test(a.name||'')}
+function attBarHTML(){
+  return `<div class="attbar"><input id="att-q" placeholder="搜附件" value="${esc(attQ)}" onkeydown="if(event.key==='Enter'){attQ=this.value;reloadAtts()}" onchange="attQ=this.value;reloadAtts()">
+   <select id="att-sort" onchange="attSort=this.value;reloadAtts()">
+    <option value="newest" ${attSort==='newest'?'selected':''}>最新</option>
+    <option value="oldest" ${attSort==='oldest'?'selected':''}>最旧</option>
+    <option value="name" ${attSort==='name'?'selected':''}>名称</option>
+    <option value="kind" ${attSort==='kind'?'selected':''}>类型</option>
+   </select></div>`;
+}
+function renderAtts(){
+  if(!atts.length) return '<div class="att-empty">还没有附件，种点资料进来吧</div>';
+  return atts.map(a=>{
+    if(a.kind==='text'){
+      return `<div class="att-text"><div class="ttl"><span>${esc(a.name||'笔记')}</span>
+        <button class="del" title="删除" onclick="delAtt(${a.id})">✕</button></div>${esc(a.text||'')}</div>`;
+    }
+    const preview=isPreviewable(a)&&!isOffice(a);
+    const acts=preview
+      ? `<button class="btn outline" onclick="previewAtt(${a.id})">Preview</button><button class="btn outline" onclick="downloadAtt(${a.id})">Download</button>`
+      : `<button class="btn outline" onclick="downloadAtt(${a.id})">Download</button>`;
+    return `<div class="att-card">
+      <svg width="22" height="22"><use href="${attIcon(a.kind)}"/></svg>
+      <div class="meta"><div class="nm">${esc(a.name||a.kind)}</div><div class="fog">${attKindLabel(a.kind)}</div></div>
+      <div class="acts">${acts}<button class="del" title="删除" onclick="delAtt(${a.id})">✕</button></div>
+    </div>`;
+  }).join('');
+}
+async function reloadAtts(){
+  const tok=++showTok; await loadAtts(); if(tok!==showTok)return;
+  const el=document.getElementById('att-list'); if(el) el.innerHTML=renderAtts();
+}
+async function authBlob(url){
+  if(!url) throw new Error('no url');
+  const u=url.startsWith('http')?url:url; // /api/v1/... via same origin proxy
+  const r=await fetch(u,{headers:{Authorization:'Bearer '+TOKEN}});
+  if(!r.ok) throw new Error('fetch '+r.status);
+  return URL.createObjectURL(await r.blob());
+}
+async function downloadAtt(aid){
+  const a=atts.find(x=>x.id==aid); if(!a||!a.url){alert('没有可下载的文件');return}
+  try{
+    const blobUrl=await authBlob(a.url);
+    const link=document.createElement('a'); link.href=blobUrl; link.download=a.name||('file-'+aid);
+    document.body.appendChild(link); link.click(); link.remove();
+    setTimeout(()=>URL.revokeObjectURL(blobUrl),4000);
+  }catch(e){alert('下载失败')}
+}
+async function previewAtt(aid){
+  const a=atts.find(x=>x.id==aid); if(!a)return;
+  document.querySelector('.lightbox')?.remove();
+  const lb=document.createElement('div'); lb.className='lightbox';
+  lb.onclick=e=>{if(e.target===lb)lb.remove()};
+  let body='';
+  try{
+    if(a.kind==='text'){
+      body=`<pre style="background:#FBFAF4;color:#3a3a32">${esc(a.text||'')}</pre>`;
+    } else if(a.kind==='code'){
+      let txt=a.text||'';
+      if(a.preview_url||a.url){const blobUrl=await authBlob(a.preview_url||a.url); txt=await (await fetch(blobUrl)).text(); URL.revokeObjectURL(blobUrl)}
+      body=`<pre>${esc(txt)}</pre>`;
+    } else if(a.kind==='image'||(/\.(png|jpe?g|gif|webp)$/i.test(a.name||''))){
+      const blobUrl=await authBlob(a.preview_url||a.url);
+      body=`<img src="${blobUrl}" alt="${esc(a.name||'')}">`;
+    } else if(a.kind==='pdf'||/\.pdf$/i.test(a.name||'')){
+      const blobUrl=await authBlob(a.preview_url||a.url);
+      body=`<iframe src="${blobUrl}" style="width:min(800px,90vw);height:70vh;border:none;border-radius:8px;background:#fff"></iframe>`;
+    } else {
+      body=`<div class="sub">暂不支持预览，请下载查看</div>`;
+    }
+  }catch(e){body=`<div class="err">预览失败</div>`}
+  lb.innerHTML=`<div class="box"><button class="btn close" onclick="this.closest('.lightbox').remove()">关闭</button><div class="sub" style="margin-bottom:8px">${esc(a.name||'')}</div>${body}</div>`;
+  document.body.appendChild(lb);
+}
+
+let showTok=0;
+async function show(){
+  const detail=detailEl();
+  if(!sel){detail.innerHTML='';return}
+  if(ro) return showRO();
+  const tok=++showTok;await loadAtts();if(tok!==showTok)return;
+  const hasRipe=tree.nodes.some(n=>(n.ripeness||'')==='ripe'||n.state==='fruit');
+  const ripe=sel.ripeness||'none';
+  const canRipe=sel.parent_id&&sel.state!=='bud'&&sel.state!=='dead';
+  const stageSel=isStage(sel);
+  const prog=sel.progress||'pending';
+  const stageBar=stageSel&&!ro?`<div class="stage-actions" style="margin:10px 0;padding:10px;background:#A8C68618;border:1px solid #A8C68655;border-radius:12px">
+   <div class="sub" style="margin:0 0 8px">环节进度</div>
+   <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <button class="btn" style="${prog==='done'?'opacity:.55':''}" ${prog==='done'?'disabled':''} onclick="setStageProgress('done')">标为完成</button>
+    <button class="btn ghost" style="${prog==='active'?'opacity:.55':''}" ${prog==='active'?'disabled':''} onclick="setStageProgress('active')">设为进行中</button>
+    <button class="btn ghost" style="${prog==='stuck'?'opacity:.55':''}" ${prog==='stuck'?'disabled':''} onclick="setStageProgress('stuck')">标为卡住</button>
+   </div>
+  </div>`:'';
+  detail.innerHTML=`<h2>${sel.title}${srcBadge(nodeSrc(sel),"node-src")}</h2>${tagOf(sel)}
+ ${sel.body?`<p class="sub">${sel.body}</p>`:''}${sel.note?`<p style="font-size:13px;border-left:3px solid ${C[sel.state]};padding-left:8px">${sel.state=="dead"?"放下原因":"收获"}：${sel.note}${sel.link?` <a href="${sel.link}" target="_blank" style="color:#5E7D4F">↗</a>`:""}</p>`:""}${!sel.parent_id&&tree.forked_from?forkLine(tree.forked_from):""}
+ ${stageBar}
+ <div class="sub" style="margin-top:10px">附件</div>
+ ${attBarHTML()}
+ <div id="att-list">${renderAtts()}</div>
+ <div class="drop" id="drop" tabindex="0"
+   ondragover="event.preventDefault();this.classList.add('over')"
+   ondragleave="this.classList.remove('over')"
+   ondrop="onDrop(event)"
+   >拖入文件，或 <a class="lk" onclick="fileIn.click()">点击上传</a> · <a class="lk" onclick="addTextNote()">写文字笔记</a></div>
+ <div class="prog" id="prog"><i id="progi"></i></div>
+ <input type="file" id="fileIn" style="display:none" onchange="onFile(this.files)">
+ <button class="btn" onclick="grow()">长出新枝</button> <button class="btn ghost" onclick="suggest()" ${loading?'disabled':''}><span class="dot"></span>${loading?'想着…':'AI 建议下一步'}</button>
+ ${sugErr?`<div class="sug-err" id="sug-err">${esc(sugErr)}</div>`:''}${sugHint&&ghosts?`<div class="sug-hint">${esc(sugHint)}</div>`:''}${ghosts&&ghosts.length?`<div class="sub" style="margin-top:8px">AI 建议（点选种下）</div><div style="display:flex;flex-direction:column;gap:6px;margin:6px 0">${ghosts.map((g,i)=>`<button class="btn ghost" style="text-align:left;width:100%;padding:10px 12px" onclick="pick(${i})">${cardBadge(g)}<b style="display:block;margin:2px 0 2px">${esc((g.direction||'').slice(0,48))}</b><span class="sub">${esc((g.first_step||'').slice(0,60))}</span></button>`).join('')}</div>`:''}
+ ${sel.parent_id?`<div class="seg">
+   <button style="--c:${C.bud}" class="${sel.state=='bud'?'on':''}" onclick="askState('bud')"><i></i>嫩芽</button>
+   <button style="--c:${C.leaf}" class="${(sel.state=='leaf'||sel.state=='fruit')&&ringTier.get(sel.id)!==3?'on':''}" onclick="askState('leaf')"><i></i>绿叶</button>
+   <button style="--c:#7A5C42" class="${(sel.state=='leaf'||sel.state=='fruit')&&ringTier.get(sel.id)===3?'on':''}" onclick="askState('deep')"><i></i>深化</button>
+   <button style="--c:${C.dead}" class="${sel.state=='dead'?'on':''}" onclick="askState('dead')"><i></i>枯枝</button>
+  </div>
+  <div class="ripe-row"><div class="lab">成熟度</div>
+   <div class="ripe-seg">
+    <button style="--c:#A8C686" class="${ripe=='green'?'on':''}" ${!canRipe?'disabled':''} onclick="setRipeness('green')"><i></i>青果</button>
+    <button style="--c:#B8C45A" class="${ripe=='swelling'?'on':''}" ${!canRipe?'disabled':''} onclick="setRipeness('swelling')"><i class="swell"></i>膨大</button>
+    <button style="--c:#E08A4B" class="${ripe=='coloring'?'on':''}" ${!canRipe?'disabled':''} onclick="setRipeness('coloring')"><i class="half"></i>上色</button>
+    <span class="ripe-ro ${ripe=='ripe'?'on':''}" title="只能通过下方「摘熟」到达，不可点选">${ripe=='ripe'?'✓ ':''}熟透</span>
+   </div></div>
+  ${ripe!=='ripe'?`<div style="margin-top:8px"><button class="btn fruit" style="width:100%" onclick="askComplete()" ${sel.state==='bud'&&ripe==='none'?'disabled':''}>摘熟</button></div>`:`<div class="sub" style="margin-top:8px;color:#E08A4B">已摘熟 · 可上架</div>`}
+  <div class="ndel"><button class="btn ghost" style="width:100%;color:#C8574A;border-color:#C8574A55" onclick="askDeleteNode()">砍掉这根枝</button></div>
+  <div style="margin-top:8px"><button class="btn ghost" style="width:100%" onclick="resetNodeLayout()">恢复默认位置</button></div>`
+  :`${decoPanel()}${tree.source_url?`<p><a href="${tree.source_url}" target="_blank" style="color:#5E7D4F">回看原推文 ↗</a></p>`:''}`}
+ <div class="pub-row">${hasRipe?(tree.is_public
+   ?`<button class="btn ghost" onclick="openPubPop()">修改公开范围</button><button class="btn ghost" onclick="unpublish()">下架</button>`
+   :`<button class="btn fruit" onclick="openPubPop()">上架到果子市集</button><span class="sub">有熟果才能上架</span>`
+ ):`<span class="sub">摘熟后果实可上架市集</span>`}</div>`;
+  detail.classList.toggle('sheetish', matchMedia('(max-width:720px)').matches);
+
+}
+function onDrop(e){e.preventDefault();document.getElementById('drop').classList.remove('over');onFile(e.dataTransfer.files)}
+async function onFile(files){
+  if(!files||!files.length||!sel)return;
+  const f=files[0];
+  const kind=/^image\//.test(f.type)?'image':'file';
+  const fd=new FormData();
+  fd.append('kind',kind); fd.append('name',f.name); fd.append('file',f);
+  await doUpload(fd);
+  const fi=document.getElementById('fileIn'); if(fi) fi.value='';
+}
+async function addTextNote(){
+  const text=prompt('写一段文字笔记');
+  if(!text||!sel)return;
+  const name=prompt('笔记标题','学习笔记')||'学习笔记';
+  const fd=new FormData();
+  fd.append('kind','text'); fd.append('name',name); fd.append('text',text);
+  await doUpload(fd);
+}
+async function doUpload(fd){
+  const bar=document.getElementById('prog'), bi=document.getElementById('progi');
+  if(bar){bar.classList.add('on'); if(bi) bi.style.width='30%'}
+  try{
+    if(bi) setTimeout(()=>bi.style.width='70%',120);
+    await api('/nodes/'+sel.id+'/attachments',{method:'POST',body:fd});
+    if(bi) bi.style.width='100%';
+    await openTree(tree.id);
+  }catch(e){
+    alert((e&& (e.msg||e.detail||JSON.stringify(e)))||'上传失败');
+  }finally{
+    setTimeout(()=>{if(bar){bar.classList.remove('on'); if(bi) bi.style.width='0'}},400);
+  }
+}
+async function delAtt(aid){
+  if(!confirm('删除这个附件？'))return;
+  await api('/attachments/'+aid,{method:'DELETE'});
+  await openTree(tree.id);
+}
+async function publish(opts){
+  document.querySelector('.pubpop')?.remove();
+  try{await api('/trees/'+tree.id+'/publish',{method:'POST',body:JSON.stringify(opts||{show_dead:true,text_attachments_only:true})}); await openTree(tree.id); loadList()}
+  catch(e){alert(e.detail||e.msg||'上架失败')}
+}
+async function unpublish(){
+  await api('/trees/'+tree.id+'/unpublish',{method:'POST'}); await openTree(tree.id); loadList();
+}
+
+async function openPubPop(){
+  document.querySelector('.pubpop')?.remove();
+  const edit=!!tree.is_public;let sd=tree.show_dead,to=tree.text_attachments_only;
+    sd=sd!==false;to=to!==false;
+  const d=detailEl(),p=document.createElement('div');p.className='pubpop';
+  p.style.left='20px';p.style.bottom='64px';
+  p.innerHTML=`<b style="color:#E08A4B">${edit?'修改公开范围':'上架到果子市集'}</b><div class="sub" style="margin-top:4px">别人可以免费看到并采一颗种子</div>
+   <div class="tg">公开枯枝<span class="sw ${sd?'on':''}" id="sw-dead" onclick="this.classList.toggle('on')"></span></div>
+   <div class="tg">附件只公开文字笔记<span class="sw ${to?'on':''}" id="sw-txt" onclick="this.classList.toggle('on')"></span></div>
+   <div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn ghost" onclick="this.closest('.pubpop').remove()">取消</button>
+   <button class="btn fruit" onclick="publish({show_dead:document.getElementById('sw-dead').classList.contains('on'),text_attachments_only:document.getElementById('sw-txt').classList.contains('on')})">${edit?'保存':'确认上架'}</button></div>`;
+  d.appendChild(p);
+}
+function tagOf(n){
+  if(!n.parent_id)return `<span class="tag" style="background:#7A5C42">种子</span>`;
+  if(isStage(n)){
+    const prog=n.progress||'pending';
+    const col=prog==='done'?'#5E7D4F':prog==='active'?'#C8574A':'#8A8F86';
+    const lab={done:'环节 · 已完成',active:'环节 · 进行中',pending:'环节 · 待开始',stuck:'环节 · 卡住'}[prog]||'环节';
+    return `<span class="tag" style="background:${col}">${lab}</span>`;
+  }
+  if(isApproach(n)){
+    return `<span class="tag" style="background:#7A5C42">做法</span>` + (n.state?` <span class="tag" style="background:${C[n.state==='fruit'?'leaf':n.state]||C.leaf}">${n.state==='fruit'?N.leaf:N[n.state]}</span>`:'');
+  }
+  const st=n.state==='fruit'?'leaf':n.state; // rings stage; fruit appearance is ripeness
+  const lab=n.state==='fruit'?N.leaf:N[n.state];
+  const ripe=n.ripeness||'none';
+  const R={none:'',green:' · 青果',swelling:' · 膨大',coloring:' · 上色',ripe:' · 熟透'};
+  const idea=isIdeaNode(n)?`<span class="tag" style="background:#6B4F3A;margin-right:4px">想法</span>`:'';
+  return `${idea}<span class="tag" style="background:${C[st]||C.leaf}">${lab}${R[ripe]||''}</span>`
+}
+function forkLine(f){const s=`采自 ${authorHTML(f.author,f.owner_id)} 的《${esc(f.title)}》`;
+  return `<p class="forkline">🌱 ${f.available&&f.tree_id!=null?`<a class="lk" onclick="openMarketTree(${f.tree_id})">${s}</a>`:`${s}<span class="sub">（已下架）</span>`}</p>`}
+async function openMarketTree(id){
+  const t=await api('/market/'+id);
+  const showDead=t.show_dead!==false, txtOnly=t.text_attachments_only!==false;
+  let nodes=t.nodes;
+  if(!showDead){const dead=new Set();let ch=true;while(ch){ch=false;nodes.forEach(n=>{if(!dead.has(n.id)&&(n.state==='dead'||dead.has(n.parent_id))){dead.add(n.id);ch=true}})}nodes=nodes.filter(n=>!dead.has(n.id))}
+  nodes=nodes.map(n=>({...n,attachments:(n.attachments||[]).filter(a=>!txtOnly||a.kind==='text')}));
+  tree={...t,nodes,needs_water:false};ghosts=null;ro=true;view='market';document.body.classList.add('ro');
+  document.getElementById('tab-forest').classList.remove('on');document.getElementById('tab-market').classList.add('on');
+  document.getElementById('forest-view').style.display='none';document.getElementById('market-side').style.display='';
+  ['forest-main','forest-detail'].forEach(i=>document.getElementById(i).style.display='');
+  document.getElementById('market-view').style.display='none';
+  tt.textContent='';
+  document.getElementById('robar')?.remove();
+  const bar=document.createElement('div');bar.id='robar';bar.className='robar-wrap';
+  const fc=t.fruit_count??nodes.filter(n=>(n.ripeness||'')==='ripe'||n.state==='fruit').length;
+  bar.innerHTML=`<button class="btn ghost back" onclick="goto('market')">← 回市集</button>
+   <div class="roplaque"><b>${t.title}</b><span>作者 ${authorHTML(t.author,t.owner_id,18)} · 果实 × ${fc} · 被采 ${t.fork_count||0} 次</span></div>`;
+  document.getElementById('forest-main').appendChild(bar);
+  sel=tree.nodes.find(n=>(n.ripeness||'')==='ripe'||n.state==='fruit')||tree.nodes[0];
+  draw();showRO();
+}
+function showRO(){
+  const d=detailEl(),as=(sel.attachments||[]);
+  d.innerHTML=`<div class="rocontent"><div class="sub">只读 · 来自果子市集 · ${authorHTML(tree.author,tree.owner_id,16)}</div><h2 style="margin-top:6px">${sel.title}</h2>${tagOf(sel)}
+   ${sel.body?`<p class="sub">${sel.body}</p>`:''}${!sel.parent_id&&tree.forked_from?forkLine(tree.forked_from):''}
+   ${sel.note?`<p style="font-size:13px;border-left:3px solid ${C[sel.state]};padding-left:8px">${sel.state=="dead"?"放下原因":"收获"}：${sel.note}${sel.link?` <a href="${sel.link}" target="_blank" style="color:#5E7D4F">↗</a>`:""}</p>`:''}
+   <div class="sub" style="margin-top:10px">附件</div>
+   ${as.length?as.map(a=>`<div class="att" ${a.url?`onclick="window.open('${a.url}','_blank')" style="cursor:pointer"`:''}><svg width="18" height="18"><use href="${attIcon(a.kind)}"/></svg><span class="nm">${a.name}</span></div>${a.kind==='text'&&a.text?`<div class="sub" style="margin:-2px 0 6px 34px;font-size:12px">${a.text}</div>`:''}`).join(''):'<div class="sub">没有公开附件</div>'}</div>
+   <div class="forkbar">${tree.owner_id==ME?.id?`<div class="ownhint">🌳 这是你的树<span>别人可以从这里采一颗种子</span></div>`:`<button class="btn" id="forkbtn" onclick="forkTree()">🌱 采一颗种子</button><div class="sub" style="font-size:11px;margin-top:4px;text-align:center">复制枝干到我的树，从嫩芽重新长</div>`}</div>`;
+}
+async function forkTree(){
+  if(!ro||tree.owner_id==ME?.id)return; // never on own tree
+  const btn=document.getElementById('forkbtn');if(btn){btn.disabled=true;btn.textContent='采摘中…'}
+  let nt;try{nt=await api('/market/'+tree.id+'/fork',{method:'POST'})}catch(e){alert(e.detail||'采摘失败');showRO();return}
+  if(nt&&nt.id)await playForkAnim(nt.id); // only after a successful fork
+}
+async function playForkAnim(newId){
+  const wait=ms=>new Promise(z=>setTimeout(z,ms));
+  const root=tree.nodes.find(n=>!n.parent_id),sr=(document.getElementById('wstage')||document.getElementById('forest-main')||svg).getBoundingClientRect(),rp=P[root.id]||{x:sr.width/2,y:sr.height*0.7};
+  const sx=sr.left+rp.x,sy=sr.top+rp.y;
+  // phase 1 (0.5s): tree shrinks into the seed position and fades
+  const tg=document.getElementById('treeg');
+  tg.style.transformOrigin=`${rp.x}px ${rp.y}px`;tg.style.transition='transform .5s ease-in-out,opacity .5s ease-in-out';
+  const robar=document.getElementById('robar');if(robar){robar.style.transition='opacity .3s';robar.style.opacity='0'}
+  const seed=document.createElement('div');seed.className='flyseed';
+  seed.style.cssText=`left:${sx-9}px;top:${sy-12}px;opacity:0;transition:opacity .25s ease-in .25s`;document.body.appendChild(seed);
+  const det=detailEl();
+  requestAnimationFrame(()=>{tg.style.transform='scale(.03)';tg.style.opacity='0';seed.style.opacity='1'});
+  await wait(500);
+  // phase 2 (~0.4s): detail panel fades, list appears, seed arcs into the new row's 🌱 icon
+  det.style.transition='opacity .15s';det.style.opacity='0';
+  ro=false;document.body.classList.remove('ro','market');document.getElementById('robar')?.remove();view='forest';
+  document.getElementById('tab-forest').classList.add('on');document.getElementById('tab-market').classList.remove('on');
+  document.getElementById('forest-view').style.display='';document.getElementById('market-side').style.display='none';
+  await renderList();
+  const ic=document.querySelector(`.tl[data-id="${newId}"] .tlicon`)||list,ir=ic.getBoundingClientRect();
+  const dx=ir.left+ir.width/2-sx,dy=ir.top+ir.height/2-sy,cx=dx*.5,cy=Math.min(dy,0)-140;
+  const kf=[];for(let i=0;i<=12;i++){const u=i/12,x=2*(1-u)*u*cx+u*u*dx,y=2*(1-u)*u*cy+u*u*dy;kf.push({transform:`translate(${x}px,${y}px) scale(${1-.75*u})`,opacity:u>.85?1-(u-.85)/.15:1})}
+  seed.style.transition='';
+  await seed.animate(kf,{duration:380,easing:'ease-in-out',fill:'forwards'}).finished;
+  seed.remove();
+  // phase 3: flash row + open new tree
+  const row=document.querySelector(`.tl[data-id="${newId}"]`);if(row){row.classList.add('flash');setTimeout(()=>row.classList.remove('flash'),700)}
+  sel=null;tree=null;await openTree(newId);
+  sel=tree.nodes.find(n=>!n.parent_id);draw();
+  // new tree grows out of the seed position; hills/soil never disappear
+  const ng=document.getElementById('treeg'),np=P[sel.id];
+  ng.style.transformOrigin=`${np.x}px ${np.y}px`;ng.style.transform='scale(.03)';ng.style.opacity='0';
+  ng.getBoundingClientRect();ng.style.transition='transform .45s ease-out,opacity .35s ease-out';
+  requestAnimationFrame(()=>{ng.style.transform='';ng.style.opacity='1'});
+  await show();det.style.transition='opacity .2s';det.style.opacity='1';
+  setTimeout(()=>{ng.style.transition='';ng.style.transformOrigin=''},500);
+}
+function treeMenuHTML(){return `<span class="moreWrap"><button class="more" title="更多" onclick="event.stopPropagation();this.nextElementSibling.classList.toggle('on')">⋯</button><div class="menu"><button style="color:#6B4F3A" onclick="document.querySelectorAll('.menu.on').forEach(m=>m.classList.remove('on'));pickNode(tree.nodes.find(n=>!n.parent_id).id)">装束设置</button><button onclick="openDelModal()">砍掉这棵树</button></div></span>`}
+document.addEventListener('click',()=>document.querySelectorAll('.menu.on').forEach(m=>m.classList.remove('on')));
+function openDelModal(){
+  document.querySelectorAll('.menu.on').forEach(m=>m.classList.remove('on'));
+  document.querySelector('.modal-bg')?.remove();
+  const pub=!!tree.is_public,fc=tree.fork_count||0;let hint='';
+  if(pub&&fc>0)hint=`删除后会从果子市集消失；采走的 ${fc} 人保留副本，但「采自」会变成纯文字。`;
+  else if(pub)hint='删除后会从果子市集消失。';
+  else if(fc>0)hint=`采走的 ${fc} 人保留副本，但「采自」会变成纯文字。`;
+  const m=document.createElement('div');m.className='modal-bg';
+  m.innerHTML=`<div class="modal"><svg width="84" height="72" viewBox="0 0 84 72"><ellipse cx="42" cy="66" rx="26" ry="4" fill="#7A5C42" opacity=".25"/><path d="M42,66 L42,34" stroke="#8A8F86" stroke-width="5" stroke-linecap="round"/><path d="M42,46 L28,32 M28,32 L24,24 M28,32 L20,32 M42,40 L56,26 M56,26 L62,20 M56,26 L58,16" stroke="#8A8F86" stroke-width="2.6" fill="none" stroke-linecap="round"/><path d="M60,48 q4,2 3,6 q-4,-1 -3,-6Z" fill="#C9B77A"/><path d="M20,52 q-2,4 1,6 q2,-3 -1,-6Z" fill="#C9B77A"/></svg>
+   <h2 style="margin:6px 0 4px;white-space:nowrap">砍掉这棵树？</h2><div class="sub">《${tree.title}》的所有枝叶、果实和附件都会一起消失，无法恢复。</div>
+   ${hint?`<div class="dhint">${hint}</div>`:''}
+   <div class="mbtns"><button class="btn ghost" onclick="this.closest('.modal-bg').remove()">留着</button><button class="btn danger" onclick="doDeleteTree()">砍掉这棵树</button></div></div>`;
+  m.onclick=e=>{if(e.target===m)m.remove()};document.body.appendChild(m);
+}
+async function doDeleteTree(){
+  const id=tree.id;
+  try{await api('/trees/'+id,{method:'DELETE'})}catch(e){alert(e.detail||'删除失败');return}
+  document.querySelector('.modal-bg')?.remove();
+  tree=null;sel=null;const ts=await renderList();
+  if(ts[0])await openTree(ts[0].id);else{tt.innerHTML='';svg.innerHTML='';detailEl().innerHTML=''}
+}
+function askDeleteNode(){
+  if(!sel||!sel.parent_id)return;
+  document.querySelector('.modal-bg')?.remove();
+  const m=document.createElement('div');m.className='modal-bg';
+  m.innerHTML=`<div class="modal"><h2 style="margin:6px 0 4px">砍掉这根枝？</h2>
+   <div class="sub">「${esc(sel.title)}」及其枯掉的子枝、附件都会消失，无法恢复。</div>
+   <div class="mbtns"><button class="btn ghost" onclick="this.closest('.modal-bg').remove()">留着</button>
+   <button class="btn danger" onclick="doDeleteNode()">砍掉</button></div></div>`;
+  m.onclick=e=>{if(e.target===m)m.remove()};document.body.appendChild(m);
+}
+function showChildrenBlocked(){
+  document.querySelector('.modal-bg')?.remove();
+  const m=document.createElement('div');m.className='modal-bg';
+  m.innerHTML=`<div class="modal"><h2 style="margin:6px 0 4px">还不能砍</h2>
+   <div class="sub">还有未折断的小枝，先让它们枯掉再砍</div>
+   <div class="mbtns"><button class="btn ghost" onclick="this.closest('.modal-bg').remove()">知道了</button></div></div>`;
+  m.onclick=e=>{if(e.target===m)m.remove()};document.body.appendChild(m);
+}
+async function doDeleteNode(){
+  if(!sel||!sel.parent_id)return;
+  const id=sel.id, pid=sel.parent_id;
+  try{
+    await api('/nodes/'+id,{method:'DELETE'});
+    document.querySelector('.modal-bg')?.remove();
+    sel=tree.nodes.find(n=>n.id==pid)||null;
+    await openTree(tree.id);
+  }catch(e){
+    const d=e.detail||e||{};
+    if(d.code==='CHILDREN_NOT_DEAD') return showChildrenBlocked();
+    if(d.code==='SEED_PROTECTED'){alert(d.msg||'种子不能删');document.querySelector('.modal-bg')?.remove();return}
+    alert(d.msg||'删除失败');
+  }
+}
+function miniTreeSVG(t){
+  const fruits=(t.nodes||[]).filter(n=>(n.ripeness||'')==='ripe'||n.state==='fruit').length;
+  const buds=(t.nodes||[]).filter(n=>n.state==='bud').length;
+  let dots='';
+  for(let i=0;i<Math.min(fruits,4);i++){
+    const ang=-50+i*35, r=28, x=50+Math.sin(ang*Math.PI/180)*r, y=48-Math.cos(ang*Math.PI/180)*r;
+    dots+=`<circle cx="${x}" cy="${y}" r="5" fill="#E08A4B"/>`;
+  }
+  for(let i=0;i<Math.min(buds,3);i++){
+    const ang=20+i*40, r=22, x=50+Math.sin(ang*Math.PI/180)*r, y=52-Math.cos(ang*Math.PI/180)*r;
+    dots+=`<ellipse cx="${x}" cy="${y}" rx="4" ry="6" fill="#A8C686" opacity=".85"/>`;
+  }
+  return `<svg width="100" height="90" viewBox="0 0 100 90">
+    <path d="M50,78 L50,48" stroke="#5a4030" stroke-width="4" stroke-linecap="round"/>
+    <path d="M50,62 Q35,55 28,48" stroke="#5a4030" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <path d="M50,58 Q65,50 72,44" stroke="#5a4030" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <ellipse cx="50" cy="42" rx="26" ry="22" fill="#5E7D4F" opacity=".9"/>
+    <ellipse cx="38" cy="48" rx="14" ry="12" fill="#6f9160" opacity=".7"/>
+    <ellipse cx="62" cy="46" rx="12" ry="11" fill="#4a6a3c" opacity=".75"/>
+    ${dots}
+    <ellipse cx="50" cy="80" rx="22" ry="4" fill="#5a4030" opacity=".35"/>
+  </svg>`;
+}
+async function loadMarket(){
+  const items=await api('/market');
+  const g=document.getElementById('mgrid');
+  if(!items.length){g.innerHTML='<div class="sub" style="padding:20px">市集还空着，结出果实后上架吧</div>';return}
+  g.innerHTML=items.map(t=>{
+    const c=t.cover||{};
+    return `<div class="plaque" onclick="openMarketTree(${t.id})">
+      <span class="free">免费</span>
+      <div class="mini">${miniTreeSVG(t)}</div>
+      <h3>${c.title||t.title}</h3>
+      <div class="meta">${authorHTML(t.author,t.owner_id,18)}</div><div class="meta">果实 × ${c.fruit_count||0} · 被采 ${t.fork_count||0} 次</div>
+      ${c.harvest?`<div class="harv">「${c.harvest}」</div>`:''}
+    </div>`;
+  }).join('')+(items.length<4?Array.from({length:Math.min(3,4-items.length)},()=>'<div class="plaque ph">等待更多果子成熟</div>').join(''):'');
+}
+
+function effectiveDecos(){
+  let d=tree&&tree.decorations;
+  if(!Array.isArray(d)||!d.length) return ['whitewash','rope'];
+  return d.slice();
+}
+function decoPanel(){
+  const cur=new Set(effectiveDecos());
+  const apiEmpty=!Array.isArray(tree.decorations)||!tree.decorations.length;
+  const row=(k,label)=>`<div class="tg">${label}<span class="sw ${cur.has(k)?'on':''}" data-deco="${k}" onclick="toggleDeco('${k}',this)"></span></div>`;
+  return `<div class="deco-box"><div class="lab">树干装束${apiEmpty?' <span class="sub">（默认粉刷+麻绳）</span>':''}</div>
+   ${row('whitewash','粉刷')}
+   ${row('rope','麻绳')}
+   ${row('nameplate','木牌')}
+  </div>`;
+}
+async function toggleDeco(key,el){
+  el.classList.toggle('on');
+  const next=[...document.querySelectorAll('.deco-box .sw.on')].map(x=>x.dataset.deco);
+  try{
+    tree=await api('/trees/'+tree.id+'/decorations',{method:'PATCH',body:JSON.stringify({decorations:next})});
+    draw(); await show();
+  }catch(e){alert((e&&(e.detail||e.msg))||'装束没改上'); el.classList.toggle('on')}
+}
+async function setStageProgress(prog){
+  if(!sel||!isStage(sel)||ro)return;
+  try{
+    const n=await api('/nodes/'+sel.id+'/progress',{method:'PATCH',body:JSON.stringify({progress:prog})});
+    await openTree(tree.id);
+    const id=n&&n.id!=null?n.id:sel.id;
+    sel=tree.nodes.find(x=>x.id==id)||sel;
+    draw(); await show();
+  }catch(e){
+    const d=e&&(e.detail||e)||{};
+    alert((typeof d==='string'?d:(d.msg||e.msg))||'进度没改上');
+  }
+}
+async function setRipeness(r){
+  if(!sel||!sel.parent_id)return;
+  if(r==='ripe')return; // 只读：只能走摘熟 /complete
+  try{
+    const n=await api('/nodes/'+sel.id+'/ripeness',{method:'PATCH',body:JSON.stringify({ripeness:r})});
+    Object.assign(sel,n);
+    const ix=tree.nodes.findIndex(x=>x.id==sel.id); if(ix>=0)tree.nodes[ix]={...tree.nodes[ix],...n};
+    draw(); await show();
+  }catch(e){
+    const d=e.detail||e||{};
+    if(d.code==='RIPE_VIA_COMPLETE')return askComplete();
+    if(d.code==='NEED_LEAF'){alert(d.msg||'先升到绿叶');return}
+    alert(d.msg||e.msg||'成熟度没改上');
+  }
+}
+function askState(k){document.querySelector('.pop')?.remove();
+ if(k==='fruit')return askComplete();
+ if(k==='deep')return setDeep();
+ if(k!='dead')return setState(k);
+ const q=P[sel.id]||{x:40,y:80},box=(document.getElementById('forest-main')||svg.parentNode),p=document.createElement('div');p.className='pop dead';
+ p.style.left=Math.min(box.clientWidth-220,q.x+24)+'px';p.style.top=Math.max(50,q.y-60)+'px';
+ p.innerHTML=`<b style="color:#6B4F3A">为什么放下这根枝？</b><textarea id="pn" rows="2" placeholder="可选，比如：教程过时了"></textarea><button class="btn" style="background:#8A8F86;border-color:#8A8F86" onclick="setState('dead')">放下</button>`;box.appendChild(p)}
+function askComplete(){document.querySelector('.pop')?.remove();
+ const q=P[sel.id]||{x:40,y:80},box=(document.getElementById('forest-main')||svg.parentNode),p=document.createElement('div');p.className='pop fruit';
+ p.style.left=Math.min(box.clientWidth-220,(q?q.x:40)+24)+'px';p.style.top=Math.max(50,(q?q.y:80)-60)+'px';
+ p.innerHTML=`<b style="color:#E08A4B">摘熟这根枝？</b><textarea id="pn" rows="2" placeholder="一句话收获（可选）"></textarea><input id="pl" placeholder="可选：图片或链接"><button class="btn fruit" onclick="doComplete()">摘熟</button>`;box.appendChild(p)}
+async function grow(title){title=title||prompt('新枝叫什么？');if(!title)return;const n=await api(`/trees/${tree.id}/nodes`,{method:'POST',body:JSON.stringify({parent_id:sel.id,title})});sel=n;await openTree(tree.id);loadList()}
+async function suggest(){
+  sugErr='';sugHint='';ghosts=null;mock=false;sugSrc=null;loading=true;draw();await show();
+  try{
+    const r=await api(`/nodes/${sel.id}/suggest`,{method:'POST'});
+    const list=r.suggestions||[];
+    mock=r.mock===true;
+    sugSrc=mock?'example':(r.generated_by==='ai'?'ai':null);
+    ghosts=list.map(g=>({...g, generated_by: g.generated_by || (mock?'example':(r.generated_by||undefined))}));
+    if(mock) sugHint='当前为示例方向';
+    if(!ghosts.length){sugErr='暂时没有合适的下一步，稍后再试';ghosts=null}
+  }catch(e){
+    ghosts=null;mock=false;sugSrc=null;
+    const d=(e&&e.detail)||e||{}, code=d.code, msg=d.msg;
+    if(code==='AI_RATE_LIMITED') sugErr='请求太频繁，请稍后再试';
+    else if(code==='AI_UNAVAILABLE'||code==='AI_TIMEOUT'||code==='AI_ERROR') sugErr='AI 暂时不可用，请稍后再试';
+    else sugErr=msg||'AI 暂时不可用，请稍后再试';
+  }
+  loading=false;draw();await show();
+}
+async function pick(i){
+  const g=ghosts[i];if(!g)return;
+  const isMock=mock===true;
+  const src=isMock?'example':'ai';
+  const payload={parent_id:sel.id, title:(g.direction.split('：').pop()||g.direction).slice(0,40),
+    from_suggestion:{direction:g.direction, first_step:g.first_step, generated_by:isMock?'example':'ai', mock:isMock}};
+  const n=await api(`/trees/${tree.id}/nodes`,{method:'POST',body:JSON.stringify(payload)});
+  saveNodeSrc(n.id, n.source||src); ghosts=null;sugHint='';sugErr='';mock=false;sugSrc=null;sel=n;await openTree(tree.id);
+}
+
+async function setState(st){
+  if(st==='fruit')return doComplete();
+  const note=window.pn?.value||'',link=window.pl?.value||'';document.querySelector('.pop')?.remove();
+  pendingDraft=st=='dead'?{kind:st,nodeId:sel.id,note,link}:null;
+  try{
+    await api('/nodes/'+sel.id,{method:'PATCH',body:JSON.stringify({state:st,note,link})});
+  }catch(e){
+    const d=e.detail||e||{}, code=d.code;
+    if(code==='FRUIT_VIA_COMPLETE'){alert(d.msg||'请用摘熟结出果实');return askComplete()}
+    alert(d.msg||e.msg||'状态没改上');return
+  }finally{pendingDraft=null}
+  // client ring depth: 嫩芽 clears deep; 绿叶 → tier 2
+  if(st==='bud'){ringTier.delete(sel.id);saveRingTier()}
+  else if(st==='leaf'){ringTier.set(sel.id,2);saveRingTier()}
+  await openTree(tree.id)}
+async function setDeep(){
+  if(!sel||!sel.parent_id)return;
+  document.querySelector('.pop')?.remove();
+  // 深化: PATCH leaf (backend has no deepening); ring depth only in client ringTier
+  try{
+    if(sel.state!=='fruit'){
+      await api('/nodes/'+sel.id,{method:'PATCH',body:JSON.stringify({state:'leaf'})});
+    }
+  }catch(e){
+    const d=e.detail||e||{};alert(d.msg||e.msg||'深化失败');return
+  }
+  ringTier.set(sel.id,3);saveRingTier();
+  await openTree(tree.id)}
+async function doComplete(){
+  const note=window.pn?.value||'',link=window.pl?.value||'';document.querySelector('.pop')?.remove();
+  pendingDraft={kind:'fruit',nodeId:sel.id,note,link};
+  try{
+    const body={}; if(note)body.note=note; if(link)body.link=link;
+    await api('/nodes/'+sel.id+'/complete',{method:'POST',body:JSON.stringify(body)});
+  }catch(e){const d=e.detail||e||{};alert(d.msg||'摘熟失败');pendingDraft=null;return}
+  pendingDraft=null;
+  // keep prior ring tier (default 2) for fruit rings
+  if(!ringTier.has(sel.id)){ringTier.set(sel.id,2);saveRingTier()}
+  const sid=sel.id; await openTree(tree.id);
+  const g=document.querySelector(`g[data-n="${sid}"] .fruit-ripe`)||document.querySelector(`g[data-n="${sid}"]`);
+  g?.classList.add('bounce')}
+function water(){sel=tree.nodes.find(n=>!n.parent_id);grow()}
+async function plant(){fb.innerHTML='';try{await api('/seeds/import',{method:'POST',body:JSON.stringify({tweet_url:url.value})});await openMyTree();await renderList()}
+ catch(e){fb.innerHTML=`<div class="err">没读到这条推文（可能被删或是私密账号），把正文贴进来也能种：</div><input id="txt" placeholder="推文正文"><button class="btn" onclick="plantText()">用正文种下</button>`}}
+async function plantText(){await api('/seeds/import',{method:'POST',body:JSON.stringify({text:txt.value})});fb.innerHTML='';await openMyTree();await renderList()}
+window.onresize=()=>{if(tree&&(view==='forest'||ro))draw();};
+// ---------- auth ----------
+const AVN={pinecone:'松果',acorn:'橡果',mushroom:'蘑菇',bird:'小鸟',leaf:'叶子',fern:'蕨'};
+const AVS={
+ pinecone:'<path d="M12 3c-4 3-6 7-6 10a6 6 0 0012 0c0-3-2-7-6-10z" fill="#7A5C42"/><path d="M8 11l4 2 4-2M7.5 15l4.5 2 4.5-2M10 8l2 1.5 2-1.5" stroke="#C9A97A" stroke-width="1.2" fill="none"/><path d="M12 3V1.5" stroke="#5E7D4F" stroke-width="1.5" stroke-linecap="round"/>',
+ acorn:'<path d="M5.5 10h13a6.5 6.5 0 01-13 0z" fill="#E08A4B"/><path d="M5 10.5c0-3 3-5 7-5s7 2 7 5z" fill="#7A5C42"/><path d="M12 5.5V3" stroke="#7A5C42" stroke-width="1.6" stroke-linecap="round"/>',
+ mushroom:'<path d="M4 12a8 7 0 0116 0z" fill="#C8574A"/><circle cx="9" cy="9" r="1.2" fill="#F4F1E8"/><circle cx="14.5" cy="8" r="1" fill="#F4F1E8"/><path d="M9.5 12h5l.8 7a1 1 0 01-1 1h-4.6a1 1 0 01-1-1z" fill="#EDE3CF"/>',
+ bird:'<path d="M4 14c0-4.5 3.5-7.5 7.5-7.5 3 0 5 1.6 6 3.5l2.5.5-2 1.5c0 4-3 6.5-7 6.5S4 16 4 14z" fill="#7A5C42"/><path d="M7 13c2 1.6 5 1.8 7.5 0" stroke="#E8C9A0" stroke-width="1.2" fill="none"/><circle cx="15.5" cy="10" r=".9" fill="#3E3A32"/>',
+ leaf:'<path d="M5 19C5 10 10 5 19 5c0 9-5 14-14 14z" fill="#5E7D4F"/><path d="M5 19L14 10" stroke="#A8C686" stroke-width="1.3" stroke-linecap="round"/>',
+ fern:'<path d="M12 21V4" stroke="#5E7D4F" stroke-width="1.4" stroke-linecap="round"/><path d="M12 6l-3-1M12 6l3-1M12 9l-4.5-1.5M12 9l4.5-1.5M12 12.5l-5.5-1.5M12 12.5l5.5-1.5M12 16l-5-1M12 16l5-1" stroke="#A8C686" stroke-width="2" stroke-linecap="round"/>'};
+const avSVG=(k,sz=22,ic)=>`<span class="av" style="width:${sz}px;height:${sz}px"><svg width="${ic||sz*.78}" height="${ic||sz*.78}" viewBox="0 0 24 24">${AVS[k]||AVS.pinecone}</svg></span>`;
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function authorHTML(a,id,sz=16){const uid=a&&a.id||id;if(a&&a.nickname&&a.avatar)return `<span class="au" title="#${uid}">${avSVG(a.avatar,sz)}${esc(a.nickname)}</span>`;return `<span title="#${uid}">#${uid}</span>`}
+function nickCheck(n){const L=[...n].length;if(L<2||L>12)return '名字要 2 到 12 个字';return ''}
+function nickErr(inputId,errId,msg){const i=document.getElementById(inputId),e=document.getElementById(errId);if(i)i.classList.toggle('bad',!!msg);if(e){e.textContent=msg||''}}
+let TOKEN=localStorage.getItem('guozi_token')||'',ME=null,authBooted=false;
+function authFail(){saveResume();localStorage.removeItem('guozi_token');TOKEN='';ME=null;document.body.classList.remove('authed');showAuth('login','登录已过期，请重新登录')}
+function logout(){document.querySelector('.profpop')?.remove();localStorage.removeItem('guozi_token');TOKEN='';ME=null;tree=null;sel=null;document.body.classList.remove('authed');showAuth('login')}
+function setSession(r){TOKEN=r.token;localStorage.setItem('guozi_token',TOKEN);ME=r.user}
+function renderChip(){document.getElementById('uchip').innerHTML=ME?`<span class="chipme" onclick="event.stopPropagation();openProfile()" title="修改头像和昵称">${avSVG(ME.avatar,26)}<span class="nm">${esc(ME.nickname||ME.username)}</span></span><button onclick="logout()">退出</button>`:''}
+let profAv=null;
+let smsLeft=0,smsTimer=null;
+function phoneBlockHTML(){
+  if(ME.phone_bound){
+    return `<div class="phsec" id="phsec"><div class="ttl">手机号</div>
+      <div class="phrow"><span class="msk">${esc(ME.phone_masked||'已绑定')}</span>
+      <button type="button" class="btn ghost ph-unb" onclick="confirmUnbind()">解绑</button></div>
+      <div class="ferr" id="ph-err"></div></div>`;
+  }
+  return `<div class="phsec" id="phsec"><div class="ttl">手机号</div>
+    <div class="phrow" id="ph-entry"><span class="sub">未绑定</span>
+    <button type="button" class="act" onclick="showPhoneBind()">去绑定</button></div>
+    <div id="ph-bind" style="display:none"></div>
+    <div class="ferr" id="ph-err"></div></div>`;
+}
+function openProfile(){
+  if(document.querySelector('.profpop')){document.querySelector('.profpop').remove();return}
+  profAv=ME.avatar||'leaf';const p=document.createElement('div');p.className='profpop';p.onclick=e=>e.stopPropagation();
+  p.innerHTML=`<b style="color:#5E7D4F;font-family:'Noto Serif SC',serif">修改我的样子</b>
+   <div class="avgrid sm">${Object.keys(AVS).map(k=>`<div class="avopt ${k===profAv?'on':''}" data-k="${k}" onclick="profAv='${k}';this.parentNode.querySelectorAll('.avopt').forEach(x=>x.classList.toggle('on',x.dataset.k===profAv))">${avSVG(k,40,28)}${AVN[k]}</div>`).join('')}</div>
+   <label class="nlab" for="pf-nick">你在市集里的名字</label><input id="pf-nick" class="nick" maxlength="12" placeholder="2–12 个字" value="${esc(ME.nickname||ME.username)}">
+   <div class="ferr nickerr" id="pf-nick-err"></div><div class="aerr" id="pf-err"></div>
+   <div class="pfbtns" id="pf-btns"><button class="btn ghost" onclick="this.closest('.profpop').remove()">取消</button><button class="btn" onclick="saveMe()">保存</button></div>
+   ${phoneBlockHTML()}`;
+  document.body.appendChild(p);
+}
+function phErr(field,msg){
+  ['ph-phone','ph-code'].forEach(id=>{
+    const i=document.getElementById(id); if(i) i.classList.toggle('bad', !!msg && field===id);
+    const fe=document.getElementById('fe-'+id); if(fe) fe.textContent=(field===id && msg)?msg:'';
+  });
+  const rate=document.getElementById('ph-rate'); if(rate) rate.textContent=(field==='rate' && msg)?msg:'';
+  const e=document.getElementById('ph-err'); if(e) e.textContent=(!field && msg)?msg:'';
+}
+function showDevCode(code){
+  const el=document.getElementById('ph-dev'); if(!el)return;
+  if(!code){el.style.display='none';el.textContent='';el.onclick=null;return}
+  el.style.display='block'; el.textContent='开发调试用：'+code;
+  el.onclick=()=>{const i=document.getElementById('ph-code'); if(i){i.value=code; i.classList.remove('bad'); const fe=document.getElementById('fe-ph-code'); if(fe)fe.textContent=''}};
+}
+function showPhoneBind(){
+  const entry=document.getElementById('ph-entry'), box=document.getElementById('ph-bind');
+  if(entry)entry.style.display='none';
+  const pf=document.getElementById('pf-btns'); if(pf)pf.style.display='none';
+  if(!box)return; box.style.display='block';
+  box.innerHTML=`<div class="phform">
+    <div class="fld"><input id="ph-phone" inputmode="numeric" maxlength="11" placeholder="11 位手机号" autocomplete="tel"></div>
+    <div class="ferr ph" id="fe-ph-phone"></div>
+    <div class="phpriv">用于找回登录与账号安全，不会公开展示</div>
+    <div class="phsend"><input id="ph-code" inputmode="numeric" maxlength="6" placeholder="验证码" autocomplete="one-time-code">
+      <button type="button" class="btn" id="ph-send" onclick="sendPhoneCode()">发送验证码</button></div>
+    <div class="ferr ph" id="fe-ph-code"></div>
+    <div class="ph-rate" id="ph-rate"></div>
+    <div class="ph-dev" id="ph-dev" style="display:none"></div>
+    <div class="phbtns"><button type="button" class="btn ghost" onclick="cancelPhoneBind()">取消</button>
+      <button type="button" class="btn" onclick="bindPhone()">绑定</button></div>
+  </div>`;
+  phErr(null,''); tickSmsBtn();
+}
+function cancelPhoneBind(){
+  const entry=document.getElementById('ph-entry'), box=document.getElementById('ph-bind');
+  if(box){box.style.display='none';box.innerHTML=''} if(entry)entry.style.display='flex';
+  const pf=document.getElementById('pf-btns'); if(pf)pf.style.display='flex';
+  phErr(null,'');
+}
+function tickSmsBtn(){
+  const b=document.getElementById('ph-send'); if(!b)return;
+  if(smsLeft>0){b.disabled=true;b.textContent=smsLeft+'s 后重发'}
+  else{b.disabled=false;b.textContent='发送验证码'}
+}
+function startSmsCountdown(sec){
+  smsLeft=sec||60; tickSmsBtn(); clearInterval(smsTimer);
+  smsTimer=setInterval(()=>{smsLeft--; tickSmsBtn(); if(smsLeft<=0)clearInterval(smsTimer)},1000);
+}
+const PH_FRIENDLY={BAD_PHONE:'请输入 11 位大陆手机号',BAD_CODE:'验证码不对或已过期',PHONE_TAKEN:'这个手机号已经绑定过其他账号',
+  ALREADY_BOUND:'已经绑定过这个手机号了',SMS_RATE_LIMITED:'发送太频繁，请稍后再试',NOT_BOUND:'还没有绑定手机号'};
+async function sendPhoneCode(){
+  const phone=(document.getElementById('ph-phone')?.value||'').trim(); phErr(null,''); showDevCode(null);
+  if(!/^1\d{10}$/.test(phone))return phErr('ph-phone','请输入 11 位大陆手机号');
+  try{
+    const r=await api('/auth/phone/send',{method:'POST',body:JSON.stringify({phone,purpose:'bind'})});
+    startSmsCountdown(60);
+    if(r && r.dev===true && r.dev_code) showDevCode(String(r.dev_code));
+    else showDevCode(null);
+  }catch(e){
+    const d=e.detail||{}, code=d.code, msg=PH_FRIENDLY[code]||d.msg||'发送失败，稍后再试';
+    if(code==='SMS_RATE_LIMITED') phErr('rate', msg);
+    else if(code==='BAD_PHONE'||code==='PHONE_TAKEN'||code==='ALREADY_BOUND') phErr('ph-phone', msg);
+    else phErr(null, msg);
+  }
+}
+async function bindPhone(){
+  const phone=(document.getElementById('ph-phone')?.value||'').trim();
+  const code=(document.getElementById('ph-code')?.value||'').trim(); phErr(null,'');
+  if(!/^1\d{10}$/.test(phone))return phErr('ph-phone','请输入 11 位大陆手机号');
+  if(!code)return phErr('ph-code','请填写验证码');
+  try{
+    ME=await api('/auth/phone/bind',{method:'POST',body:JSON.stringify({phone,code,purpose:'bind'})});
+    clearInterval(smsTimer);smsLeft=0; showDevCode(null);
+    const sec=document.getElementById('phsec');
+    if(sec){sec.outerHTML=phoneBlockHTML()}
+    const pf=document.getElementById('pf-btns'); if(pf)pf.style.display='flex';
+    renderChip();
+  }catch(e){
+    const d=e.detail||{}, code=d.code, msg=PH_FRIENDLY[code]||d.msg||'绑定失败，稍后再试';
+    if(code==='BAD_CODE') phErr('ph-code', msg);
+    else if(code==='BAD_PHONE'||code==='PHONE_TAKEN') phErr('ph-phone', msg);
+    else phErr(null, msg);
+  }
+}
+function confirmUnbind(){
+  document.querySelector('.modal-bg')?.remove();
+  const m=document.createElement('div');m.className='modal-bg';m.style.zIndex=120;
+  m.innerHTML=`<div class="modal"><h2 style="margin:6px 0 4px">解除手机号绑定？</h2>
+   <div class="sub">解绑后将无法用这个手机号找回账号</div>
+   <div class="mbtns"><button class="btn ghost" onclick="this.closest('.modal-bg').remove()">留着</button>
+   <button class="btn danger" onclick="doUnbindPhone()">确认解绑</button></div></div>`;
+  m.onclick=e=>{e.stopPropagation();if(e.target===m)m.remove()};
+  document.body.appendChild(m);
+}
+async function doUnbindPhone(){
+  phErr(null,'');
+  try{
+    ME=await api('/auth/phone/unbind',{method:'POST',body:JSON.stringify({})});
+    document.querySelector('.modal-bg')?.remove();
+    const sec=document.getElementById('phsec'); if(sec)sec.outerHTML=phoneBlockHTML();
+    renderChip();
+  }catch(e){
+    document.querySelector('.modal-bg')?.remove();
+    const d=e.detail||{}; phErr(null, PH_FRIENDLY[d.code]||d.msg||'解绑失败');
+  }
+}
+document.addEventListener('click',()=>document.querySelector('.profpop')?.remove());
+async function saveMe(){
+  const nick=document.getElementById('pf-nick').value.trim(),er=document.getElementById('pf-err');
+  er.textContent='';const c=nickCheck(nick);if(c)return nickErr('pf-nick','pf-nick-err',c);nickErr('pf-nick','pf-nick-err','');
+  try{ME=await api('/auth/me',{method:'PATCH',body:JSON.stringify({avatar:profAv,nickname:nick})})}
+  catch(e){const d=e.detail||{};if(d.code==='BAD_NICKNAME')nickErr('pf-nick','pf-nick-err',d.msg||'这个名字不能用，换一个吧');else er.textContent=d.code==='BAD_AVATAR'?'头像不在可选列表里':(d.msg||'没保存上，再试一次');return}
+  document.querySelector('.profpop')?.remove();renderChip();
+  // refresh author displays in the current view
+  if(ro&&tree){const sid=sel?.id;await openMarketTree(tree.id);if(sid){sel=tree.nodes.find(n=>n.id==sid)||sel;draw();showRO()}}
+  else if(view==='market')loadMarket();
+  else if(tree){await openTree(tree.id)}
+}
+function showAuth(tab,msg){
+  const c=document.getElementById('authcard');
+  c.innerHTML=`<svg width="96" height="80" viewBox="0 0 96 80"><ellipse cx="48" cy="70" rx="30" ry="5" fill="#7A5C42" opacity=".22"/>
+    <path d="M48 60c-9 0-14-6-14-13 0-9 7-15 14-21 7 6 14 12 14 21 0 7-5 13-14 13z" fill="#7A5C42"/><path d="M48 30v26" stroke="#C9A97A" stroke-width="1.3" opacity=".6"/>
+    <path d="M48 27c0-8 4-13 11-15-1 7-5 12-11 15z" fill="#A8C686"/><path d="M48 27c0-6-3-10-8-11 1 5 4 9 8 11z" fill="#5E7D4F"/></svg>
+   <h1>让果子熟</h1><div class="sub">在晨雾里种下一个想法，慢慢等它结果</div>
+   <div class="authtabs"><button class="${tab==='login'?'on':''}" onclick="showAuth('login')">登录</button><button class="${tab==='register'?'on':''}" onclick="showAuth('register')">注册</button></div>
+   <form onsubmit="event.preventDefault();doAuth('${tab}')">
+    <div class="fld"><input id="au-u" placeholder=" " autocomplete="username"><label for="au-u">用户名 <i>3–20 位字母、数字、下划线</i></label></div><div class="ferr" id="fe-au-u"></div>
+    <div class="fld"><input id="au-p" type="password" placeholder=" " autocomplete="${tab==='login'?'current-password':'new-password'}"><label for="au-p">密码 <i>至少 6 位</i></label><button type="button" class="eye" tabindex="-1" title="显示密码" onclick="togglePw(this)"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" fill="none" stroke="#8A8F86" stroke-width="1.6"/><circle cx="12" cy="12" r="3" fill="none" stroke="#8A8F86" stroke-width="1.6"/><path class="slash" d="M4 4l16 16" stroke="#8A8F86" stroke-width="1.6"/></svg></button></div><div class="ferr" id="fe-au-p"></div>
+    ${tab==='register'?'<div class="fld"><input id="au-p2" type="password" placeholder=" " autocomplete="new-password"><label for="au-p2">确认密码</label><button type="button" class="eye" tabindex="-1" title="显示密码" onclick="togglePw(this)"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" fill="none" stroke="#8A8F86" stroke-width="1.6"/><circle cx="12" cy="12" r="3" fill="none" stroke="#8A8F86" stroke-width="1.6"/><path class="slash" d="M4 4l16 16" stroke="#8A8F86" stroke-width="1.6"/></svg></button></div><div class="ferr" id="fe-au-p2"></div>':''}
+    ${tab==='register'?'<label class="agree" id="au-agree-l"><input type="checkbox" id="au-agree"> 我已阅读并同意<a class="lk" onclick="event.preventDefault();showDoc(\'terms\')">《用户协议》</a><a class="lk" onclick="event.preventDefault();showDoc(\'privacy\')">《隐私政策》</a></label><div class="ferr" id="fe-agree"></div>':''}
+    <div class="aerr" id="au-err">${msg?esc(msg):''}</div>
+    <button class="btn" type="submit">${tab==='login'?'走进树林':'种下我的第一颗种子'}</button></form>
+   ${tab==='login'?'<div class="sub" style="margin-top:10px;font-size:12px">忘记密码？<a class="lk" href="mailto:hello@guozi.forest">联系我们</a></div>':''}<div class="sub" style="margin-top:6px;font-size:12px">${tab==='login'?'还没有账号？<a class="lk" onclick="showAuth(\'register\')">注册一个</a>':'已经有账号了？<a class="lk" onclick="showAuth(\'login\')">去登录</a>'}</div>`;
+}
+const FRIENDLY={AGREEMENT_REQUIRED:'请先阅读并勾选同意《用户协议》《隐私政策》',BAD_CREDENTIALS:'用户名或密码不对，再试一次？',USERNAME_TAKEN:'这个用户名已经有人用了，换一个吧',BAD_USERNAME:'用户名只能是 3–20 位字母、数字或下划线',BAD_PASSWORD:'密码至少 6 位',BAD_INPUT:'用户名至少 3 位，密码至少 6 位'};
+function fieldErr(map){ // map: {fieldId: message}; fieldId 'agree' for the checkbox
+  ['au-u','au-p','au-p2','agree'].forEach(id=>{const e=document.getElementById('fe-'+id);if(e)e.textContent=map[id]||'';
+    const inp=id==='agree'?null:document.getElementById(id);if(inp)inp.classList.toggle('bad',id in map)});
+  document.getElementById('au-agree-l')?.classList.toggle('bad','agree' in map);
+}
+async function doAuth(tab){
+  const u=document.getElementById('au-u').value.trim(),p=document.getElementById('au-p').value,err=document.getElementById('au-err');
+  err.textContent='';
+  if(!/^[A-Za-z0-9_]{3,20}$/.test(u))return fieldErr({'au-u':'用户名只能是 3–20 位字母、数字或下划线'});
+  if(p.length<6)return fieldErr({'au-p':'密码至少 6 位'});
+  if(tab==='register'&&p!==document.getElementById('au-p2').value)return fieldErr({'au-p2':'两次输入的密码不一样'});
+  if(tab==='register'&&!document.getElementById('au-agree').checked)return fieldErr({agree:'请先阅读并勾选同意《用户协议》《隐私政策》'});
+  fieldErr({});
+  const body={username:u,password:p};if(tab==='register'){body.agreed=true;body.agreed_at=new Date().toISOString();body.agreement_version=AGREE_VER}
+  try{const r=await api('/auth/'+tab,{method:'POST',body:JSON.stringify(body)});setSession(r);
+    if(tab==='register')showAvatarStep();else enterApp()}
+  catch(e){const d=e.detail||{},m=FRIENDLY[d.code]||d.msg;
+    const where={BAD_CREDENTIALS:{'au-u':'','au-p':m},USERNAME_TAKEN:{'au-u':m},BAD_USERNAME:{'au-u':m},BAD_PASSWORD:{'au-p':m},BAD_INPUT:{'au-u':'','au-p':m},AGREEMENT_REQUIRED:{agree:m}}[d.code];
+    if(where)fieldErr(where);else err.textContent=m||'网络有点问题，稍后再试'}
+}
+let pickAv='pinecone';
+function showAvatarStep(){
+  pickAv=ME.avatar||'pinecone';
+  const c=document.getElementById('authcard');
+  c.innerHTML=`<h1 style="font-size:20px">选一个森林里的样子</h1><div class="sub">别人在果子市集里会看到它</div>
+   <div class="avgrid">${Object.keys(AVS).map(k=>`<div class="avopt ${k===pickAv?'on':''}" data-k="${k}" onclick="pickAv='${k}';document.querySelectorAll('.avopt').forEach(x=>x.classList.toggle('on',x.dataset.k===pickAv))">${avSVG(k,48,32)}${AVN[k]}</div>`).join('')}</div>
+   <label class="nlab" for="au-nick">你在市集里的名字</label>
+   <input id="au-nick" class="nick" placeholder="2–12 个字" value="${esc(ME.nickname||ME.username)}" maxlength="12">
+   <div class="ferr nickerr" id="au-nick-err"></div><div class="aerr" id="au-err"></div>
+   <button class="btn" onclick="saveProfile()">就是它了</button>
+   <div class="sub" style="margin-top:10px;font-size:12px"><a class="lk" onclick="skipProfile()">先跳过</a></div>`;
+}
+async function saveProfile(){
+  const nick=document.getElementById('au-nick').value.trim();const c=nickCheck(nick);
+  if(c)return nickErr('au-nick','au-nick-err',c);nickErr('au-nick','au-nick-err','');
+  try{ME=await api('/auth/me',{method:'PATCH',body:JSON.stringify({avatar:pickAv,nickname:nick})});enterApp()}
+  catch(e){const d=e.detail||{};if(d.code==='BAD_NICKNAME')nickErr('au-nick','au-nick-err',d.msg||'这个名字不能用，换一个吧');else document.getElementById('au-err').textContent=d.msg||'没保存上，再试一次'}
+}
+async function enterApp(){
+  document.body.classList.add('authed');renderChip();
+  tree=null;sel=null;goto('forest');
+  const rs=JSON.parse(sessionStorage.getItem('guozi_resume')||'null');sessionStorage.removeItem('guozi_resume');
+  if(rs&&rs.uid&&ME&&rs.uid!==ME.id){await loadList();setTimeout(draw,200);return} // different account: don't restore
+  if(rs&&rs.view==='market'&&!rs.ro){goto('market');await renderList();return}
+  if(rs&&rs.ro&&rs.treeId){await renderList();await openMarketTree(rs.treeId);if(rs.selId){sel=tree.nodes.find(n=>n.id==rs.selId)||sel;draw();showRO()}return}
+  await loadList(rs&&rs.treeId||undefined);setTimeout(draw,200);
+  if(rs&&rs.selId&&tree){sel=tree.nodes.find(n=>n.id==rs.selId)||sel;draw();await show();
+    if(rs.draft&&rs.draft.kind&&sel.id==rs.draft.nodeId){askState(rs.draft.kind);setTimeout(()=>{if(window.pn)pn.value=rs.draft.note||'';if(window.pl)pl.value=rs.draft.link||''},0)}}
+}
+let pendingDraft=null;
+function saveResume(){
+  const pop=document.querySelector('.pop');let draft=pendingDraft;
+  if(pop&&sel){draft={kind:pop.classList.contains('fruit')?'fruit':'dead',nodeId:sel.id,note:window.pn?.value||'',link:window.pl?.value||''}}
+  sessionStorage.setItem('guozi_resume',JSON.stringify({uid:ME?.id,view,ro,treeId:tree?.id,selId:sel?.id,draft}));
+}
+async function skipProfile(){try{ME=await api('/auth/me',{method:'PATCH',body:JSON.stringify({avatar:'leaf'})})}catch{}enterApp()}
+function togglePw(b){const i=b.parentNode.querySelector('input');const show=i.type==='password';i.type=show?'text':'password';b.classList.toggle('on',show);b.title=show?'隐藏密码':'显示密码'}
+const AGREE_VER='2026-10-v1';
+const DOCS={terms:['用户协议','<p>欢迎来到「让果子熟」。这里是一片安静的树林，用来种下想法、记录成长。</p><p>1. 请只上传你有权分享的内容；公开到果子市集的树，其他人可以免费查看并采一颗种子（复制枝干）。</p><p>2. 请友善对待别人的果实，不要发布违法、侵权或骚扰内容。</p><p>3. 我们可能会更新本协议，重要变化会在站内提示。</p><p class="sub">（占位文本，正式版本待法务确认）</p>'],
+ privacy:['隐私政策','<p>我们只收集让树林运转所需的最少信息：用户名、加密后的密码、昵称和头像，以及你种下的树、枝叶和附件。</p><p>公开的树会展示你的昵称和头像；未公开的内容只有你自己能看到。</p><p>我们不会出售你的个人信息。你可以随时联系我们删除账号与数据。</p><p class="sub">（占位文本，正式版本待法务确认）</p>']};
+function showDoc(k){const [h,b]=DOCS[k];const m=document.createElement('div');m.className='modal-bg';m.style.zIndex=200;
+  m.innerHTML=`<div class="modal doc"><h2>${h}</h2><div class="docbody">${b}</div><div class="mbtns"><button class="btn" onclick="this.closest('.modal-bg').remove()">我知道了</button></div></div>`;
+  m.onclick=e=>{if(e.target===m)m.remove()};document.body.appendChild(m)}
+async function boot(){
+  if(!TOKEN){showAuth('login');return}
+  try{ME=await api('/auth/me');enterApp()}catch(e){if(document.body.classList.contains('authed')||!TOKEN)return;showAuth('login')}
+}
+
+bindTreePointer();
+boot();
+</script></body></html>
